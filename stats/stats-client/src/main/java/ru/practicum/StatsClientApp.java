@@ -4,7 +4,7 @@ package ru.practicum;
  * Hello world!
  *
  */
-public class App 
+public class StatsClientApp
 {
     public static void main( String[] args )
     {

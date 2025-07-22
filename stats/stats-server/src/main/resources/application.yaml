@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: stats-server
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/stats
+    username: dbuser
+    password: "12345"               # пароль в кавычках, особенно если содержит спецсимволы
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      connection-timeout: 30000     # таймаут соединения
+      maximum-pool-size: 10         # максимальный размер пула соединений
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: none                # отключает любые автоматические действия со стороны Hibernate
+    #      ddl-auto: validate           # проверить совпадают ли структура БД и сущности
+    properties:
+      hibernate:
+        show_sql: true              # включить вывод SQL-запросов, генерируемых Hibernate, в логи приложения
+        format_sql: true            # форматирует выводимый SQL перед тем, как он попадает в логи
+
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+
+server:
+  port: 9090
+
+logging:
+  level:
+    org.springframework.orm.jpa: INFO
+    org.springframework.transaction: INFO
+    org.springframework.transaction.interceptor: TRACE
+    org.springframework.orm.jpa.JpaTransactionManager: DEBUG
+    org.hibernate.sql: DEBUG
+    org.hibernate.type: TRACE
+    org.hibernate.orm.jdbc.bind: TRACE

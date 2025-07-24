@@ -1,7 +1,7 @@
 version: '3.1'
 services:
   stats-server:
-    build: stats-service/server
+    build: ./stats/stats-server
     container_name: stats-server-container
     ports:
       - "9090:9090"
@@ -38,7 +38,7 @@ services:
 
 
   ewm-service:
-    build: ewm-service
+    build: main-service
     container_name: ewm-service-container
     ports:
       - "8080:8080"

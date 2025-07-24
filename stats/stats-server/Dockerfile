@@ -1,7 +1,12 @@
-FROM eclipse-temurin:21-jdk-jammy AS builder
+FROM eclipse-temurin:21-jdk-jammy as builder
+
+RUN apt-get update && \
+    apt-get install -y maven && \
+    rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 COPY . .
-RUN ./mvnw clean package -DskipTests  # Используем Maven Wrapper
+RUN mvn clean package -DskipTests
 
 FROM eclipse-temurin:21-jre-jammy
 COPY --from=builder /app/target/*.jar app.jar

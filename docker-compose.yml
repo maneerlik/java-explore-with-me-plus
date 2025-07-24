@@ -3,14 +3,27 @@ services:
     build: ./stats/stats-server
     ports:
       - "9090:9090"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9090/actuator/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   stats-db:
     image: postgres:16.1
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   ewm-service:
     build: ./main-service
     ports:
       - "8080:8080"
+    depends_on:
+      stats-server:
+        condition: service_healthy
 
   ewm-db:
     image: postgres:16.1

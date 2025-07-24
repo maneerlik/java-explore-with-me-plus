@@ -1,13 +1,13 @@
 package ru.practicum;
 
-/**
- * Hello world!
- *
- */
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
 public class StatsClientApp
 {
     public static void main( String[] args )
     {
-        System.out.println( "Hello World!" );
+        SpringApplication.run(StatsClientApp.class, args);
     }
 }

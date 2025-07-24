@@ -20,7 +20,7 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      stats-client:
+      stats-server:
         condition: service_healthy
 
   ewm-db:

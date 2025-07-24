@@ -3,6 +3,7 @@ services:
     build: ./stats/stats-server
     ports:
       - "9090:9090"
+    command: ["./wait-for-it.sh", "stats-server:9090"]
 
   stats-db:
     image: postgres:16.1

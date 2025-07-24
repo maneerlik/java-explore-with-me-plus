@@ -5,9 +5,13 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-COPY . .
+COPY pom.xml .
+COPY stats/pom.xml ./stats/
 
-RUN mvn -f pom.xml clean install -N -DskipTests
+RUN mvn install -N -DskipTests && \
+    mvn -f stats/pom.xml install -N -DskipTests
+
+COPY stats/stats-server ./stats/stats-server
 
 RUN mvn -f stats/stats-server/pom.xml clean package -DskipTests
 

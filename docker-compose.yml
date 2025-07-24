@@ -4,9 +4,10 @@ services:
   stats-db:
     image: postgres:16.1
     environment:
-      POSTGRES_PASSWORD: yourpassword
+      - POSTGRES_USER: dbuser
+      - POSTGRES_PASSWORD: "12345"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -21,12 +22,12 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://stats-db:5432/postgres
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9090/actuator/health"]
+      test: [ "CMD", "curl", "-f", "http://localhost:9090/actuator/health" ]
       interval: 10s
       timeout: 5s
       retries: 10
 
-  main-service:
+  ewm-service:
     build: ./main-service
     ports:
       - "8080:8080"

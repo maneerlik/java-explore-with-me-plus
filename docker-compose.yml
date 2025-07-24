@@ -1,16 +1,35 @@
+version: '3.8'
+
 services:
+  stats-db:
+    image: postgres:16.1
+    environment:
+      POSTGRES_PASSWORD: yourpassword
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   stats-server:
     build: ./stats/stats-server
     ports:
       - "9090:9090"
+    depends_on:
+      stats-db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://stats-db:5432/postgres
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9090/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
-  stats-db:
-    image: postgres:16.1
-
-  ewm-service:
+  main-service:
     build: ./main-service
     ports:
       - "8080:8080"
-
-  ewm-db:
-    image: postgres:16.1
+    depends_on:
+      stats-server:
+        condition: service_healthy

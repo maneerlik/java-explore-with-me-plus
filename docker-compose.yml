@@ -9,28 +9,30 @@ services:
       stats-db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9090/actuator/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      test: ["CMD-SHELL", "curl -f http://localhost:9090/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 8
     environment:
-      SPRING_DATASOURCE_URL: "jdbc:postgresql://stats-db:5432/stats"
-      SPRING_DATASOURCE_USERNAME: "postgres"
-      SPRING_DATASOURCE_PASSWORD: "postgres"
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://stats-db:5432/stats?connectTimeout=5000"
+      SPRING_DATASOURCE_USERNAME: "dbuser"
+      SPRING_DATASOURCE_PASSWORD: "12345"
+      SPRING_LIQUIBASE_ENABLED: "true"
+    restart: unless-stopped
 
   stats-db:
     image: postgres:16.1
     environment:
-      POSTGRES_DB: "stats"  # Добавил явное указание БД
-      POSTGRES_USER: "postgres"
-      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_DB: "stats"
+      POSTGRES_USER: "dbuser"
+      POSTGRES_PASSWORD: "12345"
     volumes:
       - stats-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U dbuser -d stats"]
       interval: 5s
       timeout: 5s
-      retries: 10
+      retries: 15
 
   ewm-service:
     build: ./main-service

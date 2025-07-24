@@ -7,10 +7,10 @@ services:
   stats-db:
     image: postgres:16.1
 
-  main-service:
+  ewm-service:
     build: ./main-service
     ports:
       - "8080:8080"
 
-  main-db:
+  ewm-db:
     image: postgres:16.1

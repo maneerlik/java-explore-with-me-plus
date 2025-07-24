@@ -1,5 +1,5 @@
 services:
-  localhost:
+  stats-server:
     build: ./stats/stats-server
     ports:
       - "9090:9090"

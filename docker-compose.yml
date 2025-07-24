@@ -1,66 +1,16 @@
-version: '3.8'
-
 services:
-  # Основной сервис
+  stats-server:
+    build: ./stats/stats-server
+    ports:
+      - "9090:9090"
+
+  stats-db:
+    image: postgres:16.1
+
   ewm-service:
     build: ./main-service
     ports:
       - "8080:8080"
-    depends_on:
-      stats-client:
-        condition: service_healthy
-    environment:
-      STATS_SERVICE_URL: "http://stats-client:9090"
 
-  # Клиент статистики (входная точка)
-  stats-client:
-    build: ./stats/stats-client
-    ports:
-      - "9090:9090"
-    depends_on:
-      stats-server:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9090/actuator/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  # Сервер статистики (внутренний)
-  stats-server:
-    build: ./stats/stats-server
-    ports:
-      - "8989:8080"  # Только для отладки, можно убрать в проде
-    environment:
-      SPRING_DATASOURCE_URL: "jdbc:postgresql://stats-db:5432/stats"
-      SPRING_DATASOURCE_USERNAME: "postgres"
-      SPRING_DATASOURCE_PASSWORD: "postgres"
-    depends_on:
-      stats-db:
-        condition: service_healthy
-
-  # Базы данных
-  stats-db:
+  ewm-db:
     image: postgres:16.1
-    environment:
-      POSTGRES_DB: "stats"
-      POSTGRES_PASSWORD: "postgres"
-    volumes:
-      - stats-data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-
-  main-db:
-    image: postgres:16.1
-    environment:
-      POSTGRES_DB: "main"
-      POSTGRES_PASSWORD: "postgres"
-    volumes:
-      - main-data:/var/lib/postgresql/data
-
-volumes:
-  stats-data:
-  main-data:

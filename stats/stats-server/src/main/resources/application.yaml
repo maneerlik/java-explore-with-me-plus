@@ -15,7 +15,6 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: none                # отключает любые автоматические действия со стороны Hibernate
-    #      ddl-auto: validate           # проверить совпадают ли структура БД и сущности
     properties:
       hibernate:
         show_sql: true              # включить вывод SQL-запросов, генерируемых Hibernate, в логи приложения

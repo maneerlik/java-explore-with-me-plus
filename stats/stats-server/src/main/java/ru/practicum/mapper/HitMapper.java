@@ -21,7 +21,4 @@ public class HitMapper {
         return new HitDto(hit.getId(), hit.getApp(), hit.getUri(), hit.getIp(), hit.getTimestamp());
     }
 
-//    public static StatsDto toStatsDto(Hit hit) {
-//        return new StatsDto(hit.getApp(), hit.getUri(), hit.get)
-//    }
 }

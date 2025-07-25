@@ -1,0 +1,5 @@
+server:
+  port: 9090
+
+stats-server:
+  url: http://localhost:8989

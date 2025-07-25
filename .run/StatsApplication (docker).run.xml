@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="StatsApplication (docker)" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <module name="stats-server" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="ru.practicum.StatsServerApplication" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

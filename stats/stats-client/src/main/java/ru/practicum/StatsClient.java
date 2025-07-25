@@ -1,6 +1,7 @@
 package ru.practicum;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -10,9 +11,11 @@ import org.springframework.web.client.RestClient;
 import org.springframework.http.HttpStatusCode;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
+@Slf4j
 @AllArgsConstructor
 public class StatsClient {
     private final RestClient restClient;
@@ -20,13 +23,16 @@ public class StatsClient {
 
     @Autowired
     public StatsClient(@Value("${stats-server.url}") String serverUrl) {
-        restClient = RestClient.create();
+        log.info("url: " + serverUrl);
+        restClient = RestClient.builder()
+                .baseUrl(serverUrl)
+                .build();
         url = serverUrl;
     }
 
     public ResponseEntity<Object> saveHit(HitDto hitDto) {
         return restClient.post()
-                .uri(url + "/hit")
+                .uri(uriBuilder -> uriBuilder.path("/hit").build())
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(hitDto)
                 .retrieve()
@@ -37,13 +43,22 @@ public class StatsClient {
     }
 
     public ResponseEntity<Object> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
+        String formattedStart = start.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        String formattedEnd = end.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+
         return restClient.get()
-                .uri(uriBuilder -> uriBuilder.path(url + "/stats")
-                        .queryParam("start", start.toString())
-                        .queryParam("end", end.toString())
-                        .queryParam("uris", uris)
-                        .queryParam("unique", unique)
-                        .build())
+                .uri(uriBuilder -> {
+                    log.info("url before /stats: " + url);
+                    uriBuilder.path("/stats")
+                            .queryParam("start", formattedStart)
+                            .queryParam("end", formattedEnd);
+
+                    if (uris != null && !uris.isEmpty()) {
+                        uriBuilder.queryParam("uris", String.join(",", uris));
+                    }
+
+                    return uriBuilder.queryParam("unique", unique).build();
+                })
                 .retrieve()
                 .toEntity(Object.class);
     }

@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.HitDto;
+import ru.practicum.StatsDto;
 import ru.practicum.exception.ValidationException;
 import ru.practicum.mapper.HitMapper;
 import ru.practicum.model.Hit;
@@ -48,7 +50,7 @@ public class StatsServiceImpl implements StatsService {
 
 
     private LocalDateTime parseDate(String date) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
         return LocalDateTime.parse(date, formatter);
     }
 }

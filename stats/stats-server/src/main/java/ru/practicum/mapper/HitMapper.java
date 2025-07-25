@@ -20,5 +20,4 @@ public class HitMapper {
     public static HitDto toHitDto(Hit hit) {
         return new HitDto(hit.getId(), hit.getApp(), hit.getUri(), hit.getIp(), hit.getTimestamp());
     }
-
 }

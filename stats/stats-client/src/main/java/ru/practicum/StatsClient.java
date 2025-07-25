@@ -9,6 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.http.HttpStatusCode;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Service
 @AllArgsConstructor
 public class StatsClient {
@@ -33,9 +36,14 @@ public class StatsClient {
                 .toEntity(Object.class);
     }
 
-    public ResponseEntity<Object> getStats() {
+    public ResponseEntity<Object> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
         return restClient.get()
-                .uri(url + "/stats")
+                .uri(uriBuilder -> uriBuilder.path(url + "/stats")
+                        .queryParam("start", start.toString())
+                        .queryParam("end", end.toString())
+                        .queryParam("uris", uris)
+                        .queryParam("unique", unique)
+                        .build())
                 .retrieve()
                 .toEntity(Object.class);
     }

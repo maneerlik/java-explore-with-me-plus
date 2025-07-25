@@ -1,7 +1,10 @@
 package ru.practicum.controller;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.HitDto;
 import ru.practicum.StatsDto;
@@ -30,7 +33,7 @@ public class StatsController {
      * @return HitDto объект созданного запроса
      */
     @PostMapping("/hit")
-    public HitDto createHit(@RequestBody HitDto hitDto) {
+    public HitDto createHit(@RequestBody @Valid HitDto hitDto) {
         log.info("Creating hit {} in the service", hitDto);
         return statsService.create(hitDto);
     }
@@ -47,8 +50,8 @@ public class StatsController {
      */
     @GetMapping("/stats")
     public Collection<StatsDto> getStats(
-            @RequestParam(required = true) String start,
-            @RequestParam(required = true) String end,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @NotNull String start,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @NotNull String end,
             @RequestParam(required = false) List<String> uris,
             @RequestParam(defaultValue = "false") Boolean unique
     ) {

@@ -1,5 +1,2 @@
-server:
-  port: 9090
-
 stats-server:
-  url: "http://localhost:8989"
+  url: "http://localhost:9090"

@@ -50,7 +50,7 @@ public class StatsServiceImpl implements StatsService {
 
 
     private LocalDateTime parseDate(String date) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd' 'HH:mm:ss");
         return LocalDateTime.parse(date, formatter);
     }
 }

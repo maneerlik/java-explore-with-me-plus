@@ -28,13 +28,13 @@ services:
       dockerfile: Dockerfile
     container_name: stats-server
     ports:
-      - "8989:8989"
-      - "5006:5005" # порт для дебага
+      - "9090:9090"
+#      - "5006:5005" # порт для дебага
     depends_on:
       stats-db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8989/actuator/health || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:9090/actuator/health || exit 1"]
       timeout: 10s
       interval: 30s
       retries: 3

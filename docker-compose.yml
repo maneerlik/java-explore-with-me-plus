@@ -29,7 +29,7 @@ services:
     container_name: stats-server
     ports:
       - "9090:9090"
-#      - "5006:5005" # порт для дебага
+      - "5006:5005" # порт для дебага
     depends_on:
       stats-db:
         condition: service_healthy
@@ -45,34 +45,49 @@ services:
       SPRING_DATASOURCE_URL: "jdbc:postgresql://stats-db:5432/stats?connectTimeout=5000&socketTimeout=30000"
       SPRING_DATASOURCE_USERNAME: "dbuser"
       SPRING_DATASOURCE_PASSWORD: "12345"
-    restart: on-failure
+    restart: on-failure:3
     networks:
       - backend
 
-#  ewm-db:
-#    image: postgres:16.1
-#    container_name: ewm-db
-#    environment:
-#      POSTGRES_DB: "main"
-#      POSTGRES_USER: "postgres"
-#      POSTGRES_PASSWORD: "postgres"
-#    volumes:
-#      - ./volumes/postgres/main-data:/var/lib/postgresql/data
-#    networks:
-#      - backend
-#
-#  ewm-service:
-#    build: ./main-service
-#    ports:
-#      - "8080:8080"
-#    depends_on:
-#      stats-server:
-#        condition: service_healthy
-#    environment:
-#      STATS_SERVICE_URL: "http://stats-server:8989"
-#    networks:
-#      - backend
+  ewm-db:
+    image: postgres:16.1
+    container_name: ewm-db
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./volumes/postgres/main-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: "main"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d main"]
+      timeout: 5s
+      interval: 5s
+      retries: 10
+    networks:
+      - backend
 
-volumes:
-  stats-data:
-  main-data:
+  ewm-service:
+    build:
+      context: ./main-service
+      dockerfile: Dockerfile
+    container_name: main-service
+    ports:
+      - "8080:8080"
+      - "5005:5005" # порт для дебага
+    depends_on:
+      ewm-db:
+        condition: service_healthy
+      stats-server:
+        condition: service_healthy
+    environment:
+      JAVA_OPTS: >
+        -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+        -Duser.timezone=Europe/Moscow
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://ewm-db:5432/main?connectTimeout=5000&socketTimeout=30000"
+      SPRING_DATASOURCE_USERNAME: "postgres"
+      SPRING_DATASOURCE_PASSWORD: "postgres"
+    restart: on-failure:3
+    networks:
+      - backend

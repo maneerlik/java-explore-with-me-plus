@@ -1,11 +1,11 @@
 spring:
   application:
-    name: stats-server
+    name: main-service
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/stats
-    username: dbuser
-    password: "12345"               # пароль в кавычках, особенно если содержит спецсимволы
+    url: jdbc:postgresql://localhost:5433/main
+    username: postgres
+    password: "postgres"            # пароль в кавычках, особенно если содержит спецсимволы
     driver-class-name: org.postgresql.Driver
     hikari:
       connection-timeout: 30000     # таймаут соединения
@@ -25,7 +25,7 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
 server:
-  port: 9090
+  port: 8080
 
 logging:
   level:

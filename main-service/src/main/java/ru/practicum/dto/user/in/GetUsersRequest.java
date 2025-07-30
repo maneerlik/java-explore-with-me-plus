@@ -1,4 +1,4 @@
-package ru.practicum.dto.in;
+package ru.practicum.dto.user.in;
 
 import java.util.Collection;
 

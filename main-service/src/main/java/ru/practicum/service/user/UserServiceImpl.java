@@ -1,4 +1,4 @@
-package ru.practicum.service.impl;
+package ru.practicum.service.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -6,14 +6,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.dto.UserDTO;
-import ru.practicum.dto.in.GetUsersRequest;
+import ru.practicum.dto.user.UserDTO;
+import ru.practicum.dto.user.in.GetUsersRequest;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.mapper.UserMapper;
 import ru.practicum.model.User;
 import ru.practicum.repository.UserRepository;
-import ru.practicum.service.UserService;
 
 import java.util.Collection;
 import java.util.List;

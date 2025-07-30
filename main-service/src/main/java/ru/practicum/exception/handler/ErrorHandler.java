@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.ErrorResponse;
+import ru.practicum.exception.NotFoundException;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -27,6 +28,16 @@ public class ErrorHandler {
     public ErrorResponse conflictHandler(final ConflictException e) {
         logError(e);
         HttpStatus status = HttpStatus.BAD_REQUEST;
+        return ErrorResponse.builder(status.value(), status.getReasonPhrase())
+                .message(e.getMessage())
+                .stackTrace(getStackTrace(e))
+                .build();
+    }
+
+    @ExceptionHandler
+    public ErrorResponse handleNotFoundException(final NotFoundException e) {
+        logError(e);
+        HttpStatus status = HttpStatus.NOT_FOUND;
         return ErrorResponse.builder(status.value(), status.getReasonPhrase())
                 .message(e.getMessage())
                 .stackTrace(getStackTrace(e))

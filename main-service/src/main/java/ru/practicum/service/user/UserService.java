@@ -1,7 +1,7 @@
-package ru.practicum.service;
+package ru.practicum.service.user;
 
-import ru.practicum.dto.UserDTO;
-import ru.practicum.dto.in.GetUsersRequest;
+import ru.practicum.dto.user.UserDTO;
+import ru.practicum.dto.user.in.GetUsersRequest;
 
 import java.util.Collection;
 

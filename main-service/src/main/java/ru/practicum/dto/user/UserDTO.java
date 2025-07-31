@@ -26,9 +26,9 @@ import jakarta.validation.constraints.*;
  *   <li>{@link HasEmail} - контракт для email: не пустой, формат корректен (содержит @ и корректный домен),
  *   длина от 6 до 254 символов</li>
  *   <li>{@link HasName} - контракт для name: не пустое, длина от 2 до 250 символов</li>
- *   <li>{@code Request.Create} - DTO для создания нового пользователя (входной запрос)</li>
- *   <li>{@code Response.Full} - полное представление пользователя (включает email)</li>
- *   <li>{@code Response.Short} - краткое представление пользователя (без email)</li>
+ *   <li>{@code Request.NewUserRequest} - DTO для создания нового пользователя (входной запрос)</li>
+ *   <li>{@code Response.UserDto} - полное представление пользователя (включает email)</li>
+ *   <li>{@code Response.UserShortDto} - краткое представление пользователя (без email)</li>
  * </ul>
  *
  * <h4>Пример использования:</h4>
@@ -36,7 +36,7 @@ import jakarta.validation.constraints.*;
  * {@code
  *      // В контроллере
  *      @PostMapping("/users")
- *      public UserDTO.Response.Full createUser(@Valid @RequestBody UserDTO.Request.Create newUserRequest) {
+ *      public UserDTO.Response.UserDto createUser(@Valid @RequestBody UserDTO.Request.NewUserRequest newUserRequest) {
  *          log.info("Creating user {}", newUserRequest);
  *          return userService.createUser(newUserRequest);
  *      }
@@ -74,13 +74,9 @@ public enum UserDTO {;
 
     // --- Входящие DTO: Request ---------------------------------------------------------------------------------------
 
-
-    /**
-     *  NewUserRequest
-     */
     public enum Request {;
         @Value
-        public static class Create implements HasEmail, HasName {
+        public static class NewUserRequest implements HasEmail, HasName {
             String email;
             String name;
         }
@@ -90,22 +86,15 @@ public enum UserDTO {;
     // --- Исходящие DTO: Response -------------------------------------------------------------------------------------
 
     public enum Response {;
-
-        /**
-         *  UserDto
-         */
         @Value
-        public static class Full implements HasId, HasEmail, HasName {
+        public static class UserDto implements HasEmail, HasName {
             Long id;
             String email;
             String name;
         }
 
-        /**
-         *  UserShortDto
-         */
         @Value
-        public static class Short implements HasId, HasName {
+        public static class UserShortDto implements HasId, HasName {
             Long id;
             String name;
         }

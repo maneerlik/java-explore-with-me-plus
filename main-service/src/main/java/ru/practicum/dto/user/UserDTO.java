@@ -16,7 +16,7 @@ import jakarta.validation.constraints.*;
  *   <li><b>Отсутствие дублирования валидаций:</b> правила валидации объявлены один раз</li>
  *   <li><b>Типобезопасность:</b> все DTO - неизменяемые классы с полной поддержкой компилятора и IDE</li>
  *   <li><b>Чистая архитектура:</b> чёткое разделение входных ({@code Request}) и выходных ({@code Response}) DTO</li>
- *   <li><b>Поддержка Spring Validation:</b> аннотации из интерфейсов корректно обрабатываются при 
+ *   <li><b>Поддержка Spring Validation:</b> аннотации из интерфейсов корректно обрабатываются при
  *   использовании {@code @Valid}</li>
  * </ul>
  *
@@ -49,7 +49,8 @@ import jakarta.validation.constraints.*;
  * @see jakarta.validation.Valid
  * @see lombok.Value
  */
-public enum UserDTO {;
+public enum UserDTO {
+    ;
 
     // --- Контракты валидации (миксин-интерфейсы) ---------------------------------------------------------------------
 
@@ -74,7 +75,9 @@ public enum UserDTO {;
 
     // --- Входящие DTO: Request ---------------------------------------------------------------------------------------
 
-    public enum Request {;
+    public enum Request {
+        ;
+
         @Value
         public static class NewUserRequest implements HasEmail, HasName {
             String email;
@@ -85,7 +88,9 @@ public enum UserDTO {;
 
     // --- Исходящие DTO: Response -------------------------------------------------------------------------------------
 
-    public enum Response {;
+    public enum Response {
+        ;
+
         @Value
         public static class UserDto implements HasEmail, HasName {
             Long id;

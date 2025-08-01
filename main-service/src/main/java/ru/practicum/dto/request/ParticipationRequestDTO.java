@@ -52,7 +52,8 @@ import java.time.LocalDateTime;
  * @see jakarta.validation.Valid
  * @see lombok.Value
  */
-public enum ParticipationRequestDTO {;
+public enum ParticipationRequestDTO {
+    ;
 
     // --- Контракты валидации (миксин-интерфейсы) ---------------------------------------------------------------------
 
@@ -64,14 +65,16 @@ public enum ParticipationRequestDTO {;
 
     // --- Входящие DTO: Request ---------------------------------------------------------------------------------------
 
-    public enum Request {;
-
+    public enum Request {
+        ;
     }
 
 
     // --- Исходящие DTO: Response -------------------------------------------------------------------------------------
 
-    public enum Response {;
+    public enum Response {
+        ;
+
         @Value
         public static class ParticipationRequestDto implements HasCreated {
             Long id;

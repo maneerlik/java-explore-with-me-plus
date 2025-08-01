@@ -26,7 +26,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Transactional
-    public UserDTO.Response.Full createUser(UserDTO.Request.Create newUserRequest) {
+    public UserDTO.Response.UserDto createUser(UserDTO.Request.NewUserRequest newUserRequest) {
         boolean emailExists = userRepository.existsByEmail(newUserRequest.getEmail());
         if (emailExists) throw new ConflictException(String.format("Email exists: %s", newUserRequest.getEmail()));
 
@@ -39,7 +39,7 @@ public class UserServiceImpl implements UserService {
         return UserMapper.toFullDto(savedUser);
     }
 
-    public Collection<UserDTO.Response.Full> getUsers(GetUsersRequest request) {
+    public Collection<UserDTO.Response.UserDto> getUsers(GetUsersRequest request) {
         List<Long> ids = request.ids().stream().toList();
         int from = request.from();
         int size = request.size();

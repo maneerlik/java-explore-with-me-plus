@@ -6,7 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.dto.user.UserDTO;
+import ru.practicum.dto.user.UserDTO.Request.NewUserRequest;
+import ru.practicum.dto.user.UserDTO.Response.UserDto;
 import ru.practicum.dto.user.in.GetUsersRequest;
 import ru.practicum.service.user.UserService;
 
@@ -23,13 +24,13 @@ public class UserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UserDTO.Response.Full createUser(@Valid @RequestBody UserDTO.Request.Create newUserRequest) {
+    public UserDto createUser(@Valid @RequestBody NewUserRequest newUserRequest) {
         log.info("Creating user {}", newUserRequest);
         return userService.createUser(newUserRequest);
     }
 
     @GetMapping
-    public Collection<UserDTO.Response.Full> getUsersByIds(
+    public Collection<UserDto> getUsersByIds(
             @RequestParam(name = "ids", required = false) Collection<Long> ids,
             @RequestParam(name = "from", defaultValue = "0") int from,
             @RequestParam(name = "size", defaultValue = "10") int size

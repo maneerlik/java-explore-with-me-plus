@@ -51,6 +51,10 @@ public class UserServiceImpl implements UserService {
                 .toList();
     }
 
+    public UserDTO.Response.UserShortDto getUser(Long userId) {
+        return UserMapper.toShortDto(userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователя с id: " + userId + " не найдено.")));
+    }
+
     @Transactional
     public void deleteUser(Long userId) {
         boolean userExists = userRepository.existsById(userId);

@@ -10,5 +10,7 @@ public interface UserService {
 
     Collection<UserDTO.Response.UserDto> getUsers(GetUsersRequest request);
 
+    UserDTO.Response.UserShortDto getUser(Long userId);
+
     void deleteUser(Long id);
 }

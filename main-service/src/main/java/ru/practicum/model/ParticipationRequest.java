@@ -63,4 +63,16 @@ public class ParticipationRequest {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ApplicationStatus status = ApplicationStatus.PENDING;
+
+
+    public void confirm() {
+        if (this.status != ApplicationStatus.PENDING) {
+            throw new IllegalStateException("Request must be PENDING to be confirmed");
+        }
+        this.status = ApplicationStatus.CONFIRMED;
+    }
+
+    public void reject() {
+        this.status = ApplicationStatus.REJECTED;
+    }
 }

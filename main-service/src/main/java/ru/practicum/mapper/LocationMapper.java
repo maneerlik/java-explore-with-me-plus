@@ -11,7 +11,6 @@ public class LocationMapper {
 
     }
 
-
     public static Location toLocation(LocationDto locationDto) {
         return Location.builder()
                 .id(locationDto.getId())

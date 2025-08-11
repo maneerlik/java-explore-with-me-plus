@@ -154,6 +154,14 @@ public enum EventDTO {
         UserShortDto getInitiator();
     }
 
+    interface HasParticipantLimit {
+        Long getParticipantLimit();
+    }
+
+    interface HasRequestModeration {
+        Boolean getRequestModeration();
+    }
+
 
     // --- Входящие DTO: Request ---------------------------------------------------------------------------------------
 
@@ -168,7 +176,9 @@ public enum EventDTO {
                 HasEventDate,
                 HasLocation,
                 HasPaid,
-                HasTitle {
+                HasTitle,
+                HasParticipantLimit,
+                HasRequestModeration {
 
             String annotation;
             Long category;
@@ -190,6 +200,8 @@ public enum EventDTO {
                 HasLocation,
                 HasPaid,
                 HasStateActionUser,
+                HasParticipantLimit,
+                HasRequestModeration,
                 HasTitle {
 
             String annotation;

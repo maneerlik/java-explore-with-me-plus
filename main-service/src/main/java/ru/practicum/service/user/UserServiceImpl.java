@@ -17,6 +17,7 @@ import ru.practicum.repository.UserRepository;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -48,7 +49,10 @@ public class UserServiceImpl implements UserService {
     }
 
     public Collection<UserDto> getUsers(GetUsersRequest request) {
-        List<Long> ids = request.ids().stream().toList();
+        List<Long> ids = Optional.ofNullable(request.ids()).stream()
+                .flatMap(Collection::stream)
+                .toList();
+
         int from = request.from();
         int size = request.size();
 
@@ -64,15 +68,20 @@ public class UserServiceImpl implements UserService {
                 .toList();
     }
 
+    public UserDto getUser(Long userId) {
+        checkExistUser(userId);
+        return UserMapper.toUserDto(userRepository.findById(userId).get());
+    }
+
+    public User getUserEntity(Long userId) {
+        checkExistUser(userId);
+        return userRepository.findById(userId).get();
+    }
+
     @Transactional
     public void deleteUser(Long userId) {
         log.info("Delete user with id={}", userId);
-
-        boolean userExists = userRepository.existsById(userId);
-        if (!userExists) {
-            log.warn("User deletion failed: user with id={} not found", userId);
-            throw new NotFoundException(String.format("User with id: %s not found", userId));
-        }
+        checkExistUser(userId);
 
         try {
             userRepository.deleteById(userId);
@@ -80,6 +89,15 @@ public class UserServiceImpl implements UserService {
         } catch (Exception e) {
             log.error("Failed to delete user with id={}. Possible database error", userId, e);
             throw new ConflictException("Could not delete user");
+        }
+    }
+
+    private void checkExistUser(Long userId) {
+        boolean userExists = userRepository.existsById(userId);
+
+        if (!userExists) {
+            log.warn("User with id={} not found", userId);
+            throw new NotFoundException(String.format("User with id: %s not found", userId));
         }
     }
 }

@@ -5,13 +5,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.request.ParticipationRequestDTO.Response.ParticipationRequestDto;
+import ru.practicum.dto.request.RequestStatusUpdateDto;
+import ru.practicum.dto.request.RequestStatusUpdateResult;
+import ru.practicum.enums.EventState;
+import ru.practicum.enums.RequestStatus;
+import ru.practicum.enums.RequestStatusToUpdate;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
+import ru.practicum.exception.ParticipationException;
 import ru.practicum.mapper.ParticipationRequestMapper;
-import ru.practicum.model.ApplicationStatus;
 import ru.practicum.model.Event;
 import ru.practicum.model.ParticipationRequest;
 import ru.practicum.model.User;
+import ru.practicum.repository.EventRepository;
 import ru.practicum.repository.ParticipationRequestRepository;
 import ru.practicum.repository.UserRepository;
 
@@ -29,6 +35,7 @@ public class ParticipationRequestImpl implements ParticipationRequestService {
     private final EventRepository eventRepository;
 
 
+    @Override
     @Transactional
     public ParticipationRequestDto createRequest(Long userId, Long eventId) {
         log.info("User with id={} is creating request for event with id={}", userId, eventId);
@@ -64,7 +71,7 @@ public class ParticipationRequestImpl implements ParticipationRequestService {
         ParticipationRequest request = ParticipationRequest.builder()
                 .requester(user)
                 .event(event)
-                .status(ApplicationStatus.PENDING)
+                .status(RequestStatus.PENDING)
                 .created(LocalDateTime.now())
                 .build();
 
@@ -77,6 +84,52 @@ public class ParticipationRequestImpl implements ParticipationRequestService {
         return ParticipationRequestMapper.toParticipationRequestDto(requestSaved);
     }
 
+    @Override
+    @Transactional
+    public RequestStatusUpdateResult updateRequests(Long userId, Long eventId, RequestStatusUpdateDto requestStatusUpdateDto) {
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException("События с id: " + eventId + " не существует."));
+
+        RequestStatusUpdateResult result = new RequestStatusUpdateResult();
+
+        if (!event.getRequestModeration() || event.getParticipantLimit() == 0) {
+            return result;
+        }
+
+        List<ParticipationRequest> requests = requestRepository.findAllByEventIdAndRequesterId(eventId, userId);
+        List<ParticipationRequest> requestsToUpdate = requests.stream().filter(request -> requestStatusUpdateDto.getRequestIds().contains(request.getId())).toList();
+
+        if (requestsToUpdate.stream().anyMatch(request -> !RequestStatus.PENDING.equals(request.getStatus()))) {
+            throw new ParticipationException("Найден запрос не со статусом ожидания.");
+        }
+
+        if (event.getConfirmedRequests() + requestsToUpdate.size() > event.getParticipantLimit() && requestStatusUpdateDto.getStatus().equals(RequestStatusToUpdate.CONFIRMED)) {
+            throw new ParticipationException("exceeding the limit of participants");
+        }
+
+        for (ParticipationRequest request : requestsToUpdate) {
+            request.setStatus(RequestStatus.valueOf(requestStatusUpdateDto.getStatus().toString()));
+        }
+
+        requestRepository.saveAll(requestsToUpdate);
+
+        if (requestStatusUpdateDto.getStatus().equals(RequestStatusToUpdate.CONFIRMED)) {
+            event.setConfirmedRequests(event.getConfirmedRequests() + requestsToUpdate.size());
+        }
+
+        eventRepository.save(event);
+
+        if (requestStatusUpdateDto.getStatus().equals(RequestStatusToUpdate.CONFIRMED)) {
+            result.setConfirmedRequests(ParticipationRequestMapper.toParticipationRequestDtoList(requestsToUpdate));
+        }
+
+        if (requestStatusUpdateDto.getStatus().equals(RequestStatusToUpdate.REJECTED)) {
+            result.setRejectedRequests(ParticipationRequestMapper.toParticipationRequestDtoList(requestsToUpdate));
+        }
+
+        return result;
+    }
+
+    @Override
     public Collection<ParticipationRequestDto> getUserRequests(Long userId) {
         log.info("Getting participation requests for user with id={}", userId);
 
@@ -95,6 +148,12 @@ public class ParticipationRequestImpl implements ParticipationRequestService {
                 .toList();
     }
 
+    @Override
+    public List<ParticipationRequestDto> getRequestsByOwner(Long userId, Long eventId) {
+        return ParticipationRequestMapper.toParticipationRequestDtoList(requestRepository.findAllByEventIdAndRequesterId(eventId, userId));
+    }
+
+    @Override
     @Transactional
     public ParticipationRequestDto cancelRequest(Long userId, Long requestId) {
         log.info("User with id={} is cancelling request with id={}", userId, requestId);

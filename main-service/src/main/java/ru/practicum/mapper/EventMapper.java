@@ -6,22 +6,17 @@ import ru.practicum.dto.event.EventDTO.Response.EventShortDto;
 import ru.practicum.enums.EventState;
 import ru.practicum.model.Category;
 import ru.practicum.model.Event;
+import ru.practicum.model.Location;
 import ru.practicum.model.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
+import java.util.stream.Collectors;
 
 public final class EventMapper {
-    /**
-     * Don't let anyone instantiate this class.
-     */
-    private EventMapper() {
+    private EventMapper() {}
 
-    }
-
-
-    public static Event toEvent(NewEventDto dto, Category category, User user) {
+    public static Event toEvent(NewEventDto dto, Category category, User user, Location location) {
         Event event = new Event();
 
         event.setAnnotation(dto.getAnnotation());
@@ -29,20 +24,17 @@ public final class EventMapper {
         event.setTitle(dto.getTitle());
         event.setDescription(dto.getDescription());
         event.setEventDate(dto.getEventDate());
-        event.setLocation(LocationMapper.toLocation(dto.getLocation()));
-        event.setPaid(false);
-        event.setParticipantLimit(Objects.nonNull(dto.getParticipantLimit()) ? dto.getParticipantLimit() : 0L);
-        event.setRequestModeration(dto.getRequestModeration());
+        event.setLocation(location);
+        event.setPaid(dto.getPaid());
+
+        event.setParticipantLimit(dto.getParticipantLimit() != null ? dto.getParticipantLimit() : 0);
+        event.setRequestModeration(dto.getRequestModeration() != null ? dto.getRequestModeration() : true);
+
         event.setConfirmedRequests(0L);
         event.setInitiator(user);
-        event.setRequestModeration(true);
         event.setState(EventState.PENDING);
-        if (dto.getCreatedOn() != null) {
-            event.setCreatedOn(dto.getCreatedOn());
-        } else {
-            event.setCreatedOn(LocalDateTime.now());
-        }
-        event.setPublishedOn(dto.getPublishedOn());
+        event.setCreatedOn(LocalDateTime.now());
+        event.setPublishedOn(null);
         event.setViews(0L);
 
         return event;
@@ -84,10 +76,10 @@ public final class EventMapper {
     }
 
     public static List<EventShortDto> toEventShortDtoList(List<Event> events) {
-        return events.stream().map(EventMapper::toEventShortDto).toList();
+        return events.stream().map(EventMapper::toEventShortDto).collect(Collectors.toList());
     }
 
     public static List<EventFullDto> toEventFullDtoList(List<Event> events) {
-        return events.stream().map(EventMapper::toFullEventDto).toList();
+        return events.stream().map(EventMapper::toFullEventDto).collect(Collectors.toList());
     }
 }

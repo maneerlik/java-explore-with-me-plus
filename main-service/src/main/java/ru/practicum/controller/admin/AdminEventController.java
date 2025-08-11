@@ -1,6 +1,8 @@
 package ru.practicum.controller.admin;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
@@ -22,20 +24,19 @@ public class AdminEventController {
 
 
     @GetMapping
-    public List<EventFullDto> getEvents(
-            @RequestParam(name = "users", required = false) List<Long> users,
-            @RequestParam(name = "states", required = false) EventState states,
-            @RequestParam(name = "categories", required = false) List<Long> categoriesId,
-            @RequestParam(name = "rangeStart", required = false) String rangeStart,
-            @RequestParam(name = "rangeEnd", required = false) String rangeEnd,
-            @RequestParam(name = "from", required = false, defaultValue = "0") Integer from,
-            @RequestParam(name = "size", required = false, defaultValue = "10") Integer size)
-    {
-        return eventService.getEventsByAdmin(users, states, categoriesId, rangeStart, rangeEnd, from, size);
+    public List<EventFullDto> getEvents(@RequestParam(required = false) List<Long> users,
+                                        @RequestParam(required = false) List<EventState> states,
+                                        @RequestParam(required = false) List<Long> categories,
+                                        @RequestParam(required = false) String rangeStart,
+                                        @RequestParam(required = false) String rangeEnd,
+                                        @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+                                        @RequestParam(defaultValue = "10") @Positive Integer size
+    ){
+        return eventService.getEventsByAdmin(users, states, categories, rangeStart, rangeEnd, from, size);
     }
 
     @PatchMapping("/{eventId}")
-    public EventFullDto updateEvent(
+    public EventFullDto updateEventByAdmin(
             @PathVariable(name = "eventId") Long eventId,
             @Valid @RequestBody UpdateEventAdminRequest updateEventAdminDto
     ) {

@@ -210,7 +210,7 @@ public enum EventDTO {
             LocalDateTime eventDate;
             LocationDto location;
             Boolean paid;
-            Integer participantLimit;
+            Long participantLimit;
             Boolean requestModeration;
             StateActionUser stateAction;
             String title;
@@ -233,7 +233,7 @@ public enum EventDTO {
             LocalDateTime eventDate;
             LocationDto location;
             Boolean paid;
-            Integer participantLimit;
+            Long participantLimit;
             Boolean requestModeration;
             StateActionAdmin stateAction;
             String title;

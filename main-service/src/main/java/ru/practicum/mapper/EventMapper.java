@@ -14,7 +14,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public final class EventMapper {
-    private EventMapper() {}
+    private EventMapper() {
+
+    }
+
 
     public static Event toEvent(NewEventDto dto, Category category, User user, Location location) {
         Event event = new Event();

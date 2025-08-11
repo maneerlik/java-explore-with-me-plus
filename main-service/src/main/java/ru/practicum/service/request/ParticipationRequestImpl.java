@@ -4,8 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.dto.event.EventDTO.Request.EventRequestStatusUpdateRequest;
+import ru.practicum.dto.event.EventDTO.Response.EventRequestStatusUpdateResult;
 import ru.practicum.dto.request.ParticipationRequestDTO.Response.ParticipationRequestDto;
-import ru.practicum.dto.request.RequestStatusUpdateDto;
 import ru.practicum.dto.request.RequestStatusUpdateResult;
 import ru.practicum.enums.EventState;
 import ru.practicum.enums.RequestStatus;
@@ -86,8 +87,19 @@ public class ParticipationRequestImpl implements ParticipationRequestService {
 
     @Override
     @Transactional
-    public RequestStatusUpdateResult updateRequests(Long userId, Long eventId, RequestStatusUpdateDto requestStatusUpdateDto) {
-        Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException("События с id: " + eventId + " не существует."));
+    public EventRequestStatusUpdateResult updateRequests(
+            Long userId,
+            Long eventId,
+            EventRequestStatusUpdateRequest requestStatusUpdateDto
+    ) {
+        log.info("User with id={} is modifying requests for event with id={}", userId, eventId);
+
+        boolean eventExists = eventRepository.existsById(eventId);
+        if (!eventExists) {
+            log.warn("Event with id={} not found when updating requests", eventId);
+            throw new NotFoundException(String.format("Event with id: %s not found", eventId));
+        }
+        Event event = eventRepository.findById(eventId).get();
 
         RequestStatusUpdateResult result = new RequestStatusUpdateResult();
 

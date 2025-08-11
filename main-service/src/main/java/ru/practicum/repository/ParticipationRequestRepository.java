@@ -11,8 +11,6 @@ import java.util.Optional;
 public interface ParticipationRequestRepository extends JpaRepository<ParticipationRequest, Long> {
     Optional<ParticipationRequest> findByEventIdAndRequesterId(Long eventId, Long requesterId);
 
-    List<ParticipationRequest> findAllByEventIdAndRequesterId(Long eventId, Long requesterId);
-
     List<ParticipationRequest> findAllByEvent(Event event);
 
     List<ParticipationRequest> findAllByRequester(User user);

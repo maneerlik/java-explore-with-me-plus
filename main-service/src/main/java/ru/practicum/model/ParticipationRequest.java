@@ -2,7 +2,6 @@ package ru.practicum.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import ru.practicum.enums.RequestStatus;
 
 import java.time.LocalDateTime;
 
@@ -35,7 +34,6 @@ import java.time.LocalDateTime;
  */
 
 @Entity
-@Setter
 @Getter
 @Builder
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -64,17 +62,17 @@ public class ParticipationRequest {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private RequestStatus status = RequestStatus.PENDING;
+    private ApplicationStatus status = ApplicationStatus.PENDING;
 
 
     public void confirm() {
-        if (this.status != RequestStatus.PENDING) {
+        if (this.status != ApplicationStatus.PENDING) {
             throw new IllegalStateException("Request must be PENDING to be confirmed");
         }
-        this.status = RequestStatus.CONFIRMED;
+        this.status = ApplicationStatus.CONFIRMED;
     }
 
     public void reject() {
-        this.status = RequestStatus.REJECTED;
+        this.status = ApplicationStatus.REJECTED;
     }
 }

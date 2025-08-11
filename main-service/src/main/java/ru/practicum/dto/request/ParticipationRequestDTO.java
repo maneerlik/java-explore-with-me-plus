@@ -1,11 +1,8 @@
 package ru.practicum.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
 import lombok.Value;
-import ru.practicum.enums.RequestStatus;
+import ru.practicum.model.ApplicationStatus;
 
 import java.time.LocalDateTime;
 
@@ -79,15 +76,12 @@ public enum ParticipationRequestDTO {
         ;
 
         @Value
-        @Data
-        @AllArgsConstructor
-        @Builder
         public static class ParticipationRequestDto implements HasCreated {
             Long id;
             LocalDateTime created;
             Long event;
             Long requester;
-            RequestStatus status;
+            ApplicationStatus status;
         }
     }
 }

@@ -16,7 +16,6 @@ import java.util.Collection;
 public class ParticipationRequestController {
     private final ParticipationRequestService requestService;
 
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ParticipationRequestDto createRequest(

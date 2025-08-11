@@ -30,8 +30,8 @@ import java.time.LocalDateTime;
  * <ul>
  *   <li>{@link ParticipationRequestDTO.HasCreated} - контракт для created: тип для сериализации даты - String,
  *   форматирование - yyyy-MM-dd'T'HH:mm:ss.SSS</li>
- *   <li>{@code Request} - пустой контейнер, не предусмотрено текущей спецификацией</li>
- *   <li>{@code Response.Full} - полное представление заявки</li>
+ *   <li>{@link Request} - пустой контейнер, не предусмотрено текущей спецификацией</li>
+ *   <li>{@link Response.ParticipationRequestDto} - полное представление заявки</li>
  * </ul>
  *
  * <h4>Пример использования:</h4>

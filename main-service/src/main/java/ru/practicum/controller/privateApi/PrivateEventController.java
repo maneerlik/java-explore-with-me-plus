@@ -1,4 +1,4 @@
-package ru.practicum.controller;
+package ru.practicum.controller.privateApi;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -7,10 +7,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.dto.event.EventDto;
+import ru.practicum.dto.event.EventFullDto;
 import ru.practicum.dto.event.FullEventDto;
 import ru.practicum.dto.event.NewEventDto;
-import ru.practicum.dto.event.UpdateEventUserDto;
+import ru.practicum.dto.event.UpdateEventUserRequest;
 import ru.practicum.dto.request.ParticipationRequestDTO;
 import ru.practicum.dto.request.RequestStatusUpdateDto;
 import ru.practicum.dto.request.RequestStatusUpdateResult;
@@ -35,7 +35,7 @@ public class PrivateEventController {
     }
 
     @PatchMapping(path = "/{eventId}")
-    public FullEventDto updateEvent(@PathVariable Long userId, @PathVariable Long eventId, @Valid @NotNull @RequestBody UpdateEventUserDto event) {
+    public FullEventDto updateEvent(@PathVariable Long userId, @PathVariable Long eventId, @Valid @NotNull @RequestBody UpdateEventUserRequest event) {
         return eventService.updateEventByUser(userId, eventId, event);
     }
 
@@ -50,9 +50,9 @@ public class PrivateEventController {
     }
 
     @GetMapping
-    public List<EventDto> getEvents(@PathVariable Long userId,
-                                    @RequestParam(name = "from", defaultValue = "0", required = false) Integer from,
-                                    @RequestParam(name = "size", defaultValue = "10", required = false) Integer size) {
+    public List<EventFullDto> getEvents(@PathVariable Long userId,
+                                        @RequestParam(name = "from", defaultValue = "0", required = false) Integer from,
+                                        @RequestParam(name = "size", defaultValue = "10", required = false) Integer size) {
         return eventService.getEvents(userId, from, size);
     }
 

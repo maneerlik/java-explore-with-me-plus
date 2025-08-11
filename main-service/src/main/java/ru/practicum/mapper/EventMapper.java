@@ -1,6 +1,10 @@
 package ru.practicum.mapper;
 
-import ru.practicum.dto.event.EventDto;
+import ru.practicum.dto.event.EventDTO;
+import ru.practicum.dto.event.EventDTO.Request.NewEventDto;
+import ru.practicum.dto.event.EventDTO.Response.EventFullDto;
+import ru.practicum.dto.event.EventDTO.Response.EventShortDto;
+import ru.practicum.dto.event.EventFullDto;
 import ru.practicum.dto.event.FullEventDto;
 import ru.practicum.dto.event.NewEventDto;
 import ru.practicum.enums.EventState;
@@ -10,23 +14,28 @@ import ru.practicum.model.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 public final class EventMapper {
+    /**
+     * Don't let anyone instantiate this class.
+     */
+    private EventMapper() {
+
+    }
+
 
     public static Event toEvent(NewEventDto dto, Category category, User user) {
         Event event = new Event();
+
         event.setAnnotation(dto.getAnnotation());
         event.setCategory(category);
         event.setTitle(dto.getTitle());
         event.setDescription(dto.getDescription());
         event.setEventDate(dto.getEventDate());
-        event.setLocation(dto.getLocation());
+        event.setLocation(LocationMapper.toLocation(dto.getLocation()));
         event.setPaid(false);
-        if (dto.getParticipantLimit() != null) {
-            event.setParticipantLimit(dto.getParticipantLimit());
-        } else {
-            event.setParticipantLimit(0L);
-        }
+        event.setParticipantLimit(Objects.nonNull(dto.getParticipantLimit()) ? dto.getParticipantLimit() : 0L);
         event.setRequestModeration(dto.getRequestModeration());
         event.setConfirmedRequests(0L);
         event.setInitiator(user);
@@ -43,43 +52,42 @@ public final class EventMapper {
         return event;
     }
 
-    public static EventDto toEventDto(Event entity) {
-        return EventDto.builder()
-                .annotation(entity.getAnnotation())
-                .categoryId(entity.getCategory().getId())
-                .title(entity.getTitle())
-                .description(entity.getDescription())
-                .eventDate(entity.getEventDate())
-                .location(entity.getLocation())
-                .paid(entity.getPaid())
-                .participantLimit(entity.getParticipantLimit())
-                .requestModeration(entity.getRequestModeration())
-                .build();
+    public static EventShortDto toEventShortDto(Event event) {
+        return new EventShortDto(
+                event.getId(),
+                event.getAnnotation(),
+                CategoryMapper.toCategoryDto(event.getCategory()),
+                event.getConfirmedRequests(),
+                event.getEventDate(),
+                UserMapper.toShortDto(event.getInitiator()),
+                event.getPaid(),
+                event.getTitle(),
+                event.getViews()
+        );
     }
 
-    public static FullEventDto toFullEventDto(Event event) {
-        return FullEventDto.builder()
-                .id(event.getId())
-                .annotation(event.getAnnotation())
-                .title(event.getTitle())
-                .description(event.getDescription())
-                .confirmedRequests(event.getConfirmedRequests())
-                .createdOn(event.getCreatedOn())
-                .eventDate(event.getEventDate())
-                .initiator(event.getInitiator())
-                .location(event.getLocation())
-                .paid(event.getPaid())
-                .participantLimit(event.getParticipantLimit())
-                .publishedOn(event.getPublishedOn())
-                .requestModeration(event.getRequestModeration())
-                .state(event.getState())
-                .category(event.getCategory())
-                .views(event.getViews())
-                .build();
+    public static EventFullDto toFullEventDto(Event event) {
+        return new EventFullDto(
+                event.getId(),
+                event.getAnnotation(),
+                CategoryMapper.toCategoryDto(event.getCategory()),
+                event.getConfirmedRequests(),
+                event.getCreatedOn(),
+                event.getDescription(),
+                event.getEventDate(),
+                UserMapper.toShortDto(event.getInitiator()),
+                LocationMapper.toLocationDto(event.getLocation()),
+                event.getPaid(),
+                event.getParticipantLimit(),
+                event.getPublishedOn(),
+                event.getRequestModeration(),
+                event.getState(),
+                event.getTitle(),
+                event.getViews()
+        );
     }
 
-    public static List<EventDto> toEventDtoList(List<Event> events) {
+    public static List<EventFullDto> toEventDtoList(List<Event> events) {
         return events.stream().map(EventMapper::toEventDto).toList();
     }
-
 }

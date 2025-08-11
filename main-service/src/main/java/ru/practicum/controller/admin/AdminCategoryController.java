@@ -1,8 +1,6 @@
-package ru.practicum.controller;
+package ru.practicum.controller.admin;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,13 +9,11 @@ import ru.practicum.dto.category.CategoryDto;
 import ru.practicum.dto.category.NewCategoryDto;
 import ru.practicum.service.category.CategoryService;
 
-import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
-public class CategoryController {
-
+public class AdminCategoryController {
     private final CategoryService categoryService;
+
 
     @PostMapping("/admin/categories")
     public ResponseEntity<CategoryDto> createCategory(@Valid @RequestBody NewCategoryDto newCategoryDto) {
@@ -36,19 +32,5 @@ public class CategoryController {
                                                       @Valid @RequestBody NewCategoryDto newCategoryDto) {
         CategoryDto updatedCategory = categoryService.updateCategory(catId, newCategoryDto);
         return ResponseEntity.ok(updatedCategory);
-    }
-
-    @GetMapping("/categories")
-    public ResponseEntity<List<CategoryDto>> getAllCategories(
-            @RequestParam(defaultValue = "0") @PositiveOrZero int from,
-            @RequestParam(defaultValue = "10") @Positive int size) {
-        List<CategoryDto> categories = categoryService.getAllCategories(from, size);
-        return ResponseEntity.ok(categories);
-    }
-
-    @GetMapping("/categories/{catId}")
-    public ResponseEntity<CategoryDto> getCategoryById(@PathVariable Long catId) {
-        CategoryDto category = categoryService.getCategoryById(catId);
-        return ResponseEntity.ok(category);
     }
 }

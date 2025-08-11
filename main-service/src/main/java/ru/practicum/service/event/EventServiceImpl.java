@@ -14,8 +14,8 @@ import ru.practicum.dto.category.CategoryDto;
 import ru.practicum.dto.event.*;
 import ru.practicum.enums.EventState;
 import ru.practicum.enums.SortValue;
-import ru.practicum.enums.StateActionForAdmin;
-import ru.practicum.enums.StateActionForUser;
+import ru.practicum.enums.StateActionAdmin;
+import ru.practicum.enums.StateActionUser;
 import ru.practicum.exception.EventException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.exception.WrongTimeException;
@@ -56,7 +56,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public FullEventDto updateEventByUser(Long userId, Long eventId, UpdateEventUserDto event) {
+    public FullEventDto updateEventByUser(Long userId, Long eventId, UpdateEventUserRequest event) {
         userService.getUser(userId);
         Event eventToUpdate = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException("События с id: " + eventId + " не существует."));
 
@@ -96,7 +96,7 @@ public class EventServiceImpl implements EventService {
         }
 
         if (event.getStateAction() != null) {
-            if (event.getStateAction().equals(StateActionForUser.SEND_TO_REVIEW)) {
+            if (event.getStateAction().equals(StateActionUser.SEND_TO_REVIEW)) {
                 eventToUpdate.setState(EventState.PENDING);
             } else {
                 eventToUpdate.setState(EventState.CANCELED);
@@ -107,7 +107,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public FullEventDto updateEventByAdmin(Long eventId, UpdateEventAdminDto event) {
+    public FullEventDto updateEventByAdmin(Long eventId, UpdateEventAdminRequest event) {
         Event eventToUpdate = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException("События с id: " + eventId + " не существует."));
 
         if (event == null) {
@@ -143,7 +143,7 @@ public class EventServiceImpl implements EventService {
         }
 
         if (event.getStateAction() != null) {
-            if (event.getStateAction().equals(StateActionForAdmin.PUBLISH_EVENT)) {
+            if (event.getStateAction().equals(StateActionAdmin.PUBLISH_EVENT)) {
                 if (eventToUpdate.getPublishedOn() != null) {
                     throw new EventException("Событие уже опубликовано.");
                 }
@@ -152,7 +152,7 @@ public class EventServiceImpl implements EventService {
                 }
                 eventToUpdate.setState(EventState.PUBLISHED);
                 eventToUpdate.setPublishedOn(LocalDateTime.now());
-            } else if (event.getStateAction().equals(StateActionForAdmin.REJECT_EVENT)) {
+            } else if (event.getStateAction().equals(StateActionAdmin.REJECT_EVENT)) {
                 if (eventToUpdate.getPublishedOn() != null) {
                     throw new EventException("Событие уже опубликовано.");
                 }
@@ -178,14 +178,14 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventDto> getEvents(Long userId, Integer from, Integer size) {
+    public List<EventFullDto> getEvents(Long userId, Integer from, Integer size) {
         Pageable page = PageRequest.of(from / size, size);
         return EventMapper.toEventDtoList(eventRepository.findAllByInitiatorId(userId, page).toList());
     }
 
     @Override
-    public List<EventDto> getEventsByAdmin(List<Long> users, EventState states, List<Long> categoriesId,
-                                                         String rangeStart, String rangeEnd, Integer from, Integer size) {
+    public List<EventFullDto> getEventsByAdmin(List<Long> users, EventState states, List<Long> categoriesId,
+                                               String rangeStart, String rangeEnd, Integer from, Integer size) {
         LocalDateTime start = null;
         LocalDateTime end = null;
 
@@ -245,9 +245,9 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventDto> getEventsByUser(String text, List<Long> categories, Boolean paid, String rangeStart,
-                                                        String rangeEnd, Boolean onlyAvailable, SortValue sort,
-                                                        Integer from, Integer size) {
+    public List<EventFullDto> getEventsByUser(String text, List<Long> categories, Boolean paid, String rangeStart,
+                                              String rangeEnd, Boolean onlyAvailable, SortValue sort,
+                                              Integer from, Integer size) {
         LocalDateTime start = rangeStart != null ? LocalDateTime.parse(rangeStart, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) : null;
         LocalDateTime end = rangeEnd != null ? LocalDateTime.parse(rangeEnd, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) : null;
 

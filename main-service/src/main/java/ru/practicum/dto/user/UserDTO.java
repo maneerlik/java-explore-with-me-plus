@@ -26,9 +26,9 @@ import jakarta.validation.constraints.*;
  *   <li>{@link HasEmail} - контракт для email: не пустой, формат корректен (содержит @ и корректный домен),
  *   длина от 6 до 254 символов</li>
  *   <li>{@link HasName} - контракт для name: не пустое, длина от 2 до 250 символов</li>
- *   <li>{@code Request.NewUserRequest} - DTO для создания нового пользователя (входной запрос)</li>
- *   <li>{@code Response.UserDto} - полное представление пользователя (включает email)</li>
- *   <li>{@code Response.UserShortDto} - краткое представление пользователя (без email)</li>
+ *   <li>{@link Request.NewUserRequest} - DTO для создания нового пользователя (входной запрос)</li>
+ *   <li>{@link Response.UserDto} - полное представление пользователя (включает email)</li>
+ *   <li>{@link Response.UserShortDto} - краткое представление пользователя (без email)</li>
  * </ul>
  *
  * <h4>Пример использования:</h4>

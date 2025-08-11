@@ -1,21 +1,29 @@
 package ru.practicum.service.event;
 
-import ru.practicum.dto.event.EventDto;
-import ru.practicum.dto.event.FullEventDto;
-import ru.practicum.dto.event.UpdateEventUserDto;
+import ru.practicum.dto.event.*;
+import ru.practicum.enums.EventState;
+import ru.practicum.enums.SortValue;
 
 import java.util.List;
 
 public interface EventService {
-    EventDto createEvent(EventDto event, Long userId);
+    FullEventDto createEvent(NewEventDto event, Long userId);
 
-    FullEventDto updateEvent(Long userId, Long eventId, UpdateEventUserDto event);
+    FullEventDto updateEventByUser(Long userId, Long eventId, UpdateEventUserDto event);
 
-    FullEventDto updateStatusOfEvent(Long userId, Long eventId);
+    FullEventDto updateEventByAdmin(Long eventId, UpdateEventAdminDto event);
 
-    EventDto getEvent(Long userId, Long eventId);
+    FullEventDto getEvent(Long eventId);
 
-    List<EventDto> getEvents(Long userId);
+    FullEventDto getEventByUser(Long userId, Long eventId);
 
-    List<EventDto> getEventsWithUserParticipating(Long userId, Long eventId);
+    List<EventDto> getEvents(Long userId, Integer from, Integer size);
+
+    List<EventDto> getEventsByAdmin(List<Long> users, EventState states, List<Long> categoriesId,
+                                              String rangeStart, String rangeEnd, Integer from, Integer size);
+
+    List<EventDto> getEventsByUser(String text, List<Long> categories, Boolean paid, String rangeStart,
+                                             String rangeEnd, Boolean onlyAvailable, SortValue sort,
+                                             Integer from, Integer size);
+
 }

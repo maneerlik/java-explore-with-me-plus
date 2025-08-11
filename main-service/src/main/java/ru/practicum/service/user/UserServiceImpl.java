@@ -15,6 +15,7 @@ import ru.practicum.mapper.UserMapper;
 import ru.practicum.model.User;
 import ru.practicum.repository.UserRepository;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -48,6 +49,10 @@ public class UserServiceImpl implements UserService {
     }
 
     public Collection<UserDto> getUsers(GetUsersRequest request) {
+        if (request.ids().isEmpty()) {
+            return new ArrayList<>();
+        }
+
         List<Long> ids = request.ids().stream().toList();
         int from = request.from();
         int size = request.size();
@@ -64,8 +69,12 @@ public class UserServiceImpl implements UserService {
                 .toList();
     }
 
-    public UserDTO.Response.UserShortDto getUser(Long userId) {
-        return UserMapper.toShortDto(userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователя с id: " + userId + " не найдено.")));
+    public UserDto getUser(Long userId) {
+        return UserMapper.toUserDto(userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователя с id: " + userId + " не найдено.")));
+    }
+
+    public User getUserEntity(Long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь с id: " + userId + " не найден"));
     }
 
     @Transactional

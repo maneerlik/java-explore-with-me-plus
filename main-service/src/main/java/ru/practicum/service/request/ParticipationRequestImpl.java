@@ -35,8 +35,8 @@ public class ParticipationRequestImpl implements ParticipationRequestService {
     private final EventRepository eventRepository;
 
 
-    @Transactional
     @Override
+    @Transactional
     public ParticipationRequestDto createRequest(Long userId, Long eventId) {
         log.info("User with id={} is creating request for event with id={}", userId, eventId);
 
@@ -64,11 +64,9 @@ public class ParticipationRequestImpl implements ParticipationRequestService {
         if (!eventIsPublished) throw new ConflictException("Cannot apply for an unpublished event");
 
         List<ParticipationRequest> requests = requestRepository.findAllByEvent(event);
-
+        boolean limitIsExceeded = requests.size() >= event.getParticipantLimit();
         boolean isRequestModeration = event.getRequestModeration();
-        if (!event.getRequestModeration() && requests.size() >= event.getParticipantLimit()) {
-            throw new ConflictException("Member limit exceeded ");
-        }
+        if (!isRequestModeration && limitIsExceeded) throw new ConflictException("Member limit exceeded");
 
         ParticipationRequest request = ParticipationRequest.builder()
                 .requester(user)
@@ -86,8 +84,8 @@ public class ParticipationRequestImpl implements ParticipationRequestService {
         return ParticipationRequestMapper.toParticipationRequestDto(requestSaved);
     }
 
-    @Transactional
     @Override
+    @Transactional
     public RequestStatusUpdateResult updateRequests(Long userId, Long eventId, RequestStatusUpdateDto requestStatusUpdateDto) {
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException("События с id: " + eventId + " не существует."));
 
@@ -132,7 +130,6 @@ public class ParticipationRequestImpl implements ParticipationRequestService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Collection<ParticipationRequestDto> getUserRequests(Long userId) {
         log.info("Getting participation requests for user with id={}", userId);
 
@@ -152,19 +149,18 @@ public class ParticipationRequestImpl implements ParticipationRequestService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<ParticipationRequestDto> getRequestsByOwner(Long userId, Long eventId) {
         return ParticipationRequestMapper.toParticipationRequestDtoList(requestRepository.findAllByEventIdAndRequesterId(eventId, userId));
     }
 
-    @Transactional
     @Override
+    @Transactional
     public ParticipationRequestDto cancelRequest(Long userId, Long requestId) {
         log.info("User with id={} is cancelling request with id={}", userId, requestId);
 
         boolean requestExists = requestRepository.existsById(requestId);
         if (!requestExists) throw new NotFoundException(String.format("Request with id: %s not found", requestId));
-        ParticipationRequest request = requestRepository.findById(requestId).orElseThrow(() -> new NotFoundException("Request with id: " + requestId + " not found."));
+        ParticipationRequest request = requestRepository.findById(requestId).get();
 
         boolean userIsRequester = request.getRequester().getId().equals(userId);
         if (!userIsRequester) {

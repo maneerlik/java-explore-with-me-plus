@@ -7,10 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.event.EventDTO.Request.EventRequestStatusUpdateRequest;
 import ru.practicum.dto.event.EventDTO.Response.EventRequestStatusUpdateResult;
 import ru.practicum.dto.request.ParticipationRequestDTO.Response.ParticipationRequestDto;
-import ru.practicum.dto.request.RequestStatusUpdateResult;
 import ru.practicum.enums.EventState;
 import ru.practicum.enums.RequestStatus;
-import ru.practicum.enums.RequestStatusToUpdate;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.exception.ParticipationException;
@@ -23,6 +21,7 @@ import ru.practicum.repository.ParticipationRequestRepository;
 import ru.practicum.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -41,19 +40,8 @@ public class ParticipationRequestImpl implements ParticipationRequestService {
     public ParticipationRequestDto createRequest(Long userId, Long eventId) {
         log.info("User with id={} is creating request for event with id={}", userId, eventId);
 
-        boolean userExists = userRepository.existsById(userId);
-        if (!userExists) {
-            log.warn("User with id={} not found when creating requests", userId);
-            throw new NotFoundException(String.format("User with id: %s not found", userId));
-        }
-        User user = userRepository.findById(userId).get();
-
-        boolean eventExists = eventRepository.existsById(eventId);
-        if (!eventExists) {
-            log.warn("Event with id={} not found when creating requests", eventId);
-            throw new NotFoundException(String.format("Event with id: %s not found", eventId));
-        }
-        Event event = eventRepository.findById(eventId).get();
+        User user = getUser(userId);
+        Event event = getEvent(eventId);
 
         boolean requestExists = requestRepository.findByEventIdAndRequesterId(eventId, userId).isPresent();
         if (requestExists) throw new ConflictException("Request already exists");
@@ -94,64 +82,89 @@ public class ParticipationRequestImpl implements ParticipationRequestService {
     ) {
         log.info("User with id={} is modifying requests for event with id={}", userId, eventId);
 
-        boolean eventExists = eventRepository.existsById(eventId);
-        if (!eventExists) {
-            log.warn("Event with id={} not found when updating requests", eventId);
-            throw new NotFoundException(String.format("Event with id: %s not found", eventId));
-        }
-        Event event = eventRepository.findById(eventId).get();
+        Event event = getEvent(eventId);
+        getUser(userId);
 
-        RequestStatusUpdateResult result = new RequestStatusUpdateResult();
+        if (!event.getInitiator().getId().equals(userId)) {
+            log.warn("User with id={} is not the initiator of event with id={}", userId, eventId);
+            throw new ParticipationException("Only the event initiator can update participation requests");
+        }
 
         if (!event.getRequestModeration() || event.getParticipantLimit() == 0) {
-            return result;
+            log.debug("Request moderation disabled or part limit is 0. No action needed for event id={}", eventId);
+            return new EventRequestStatusUpdateResult(List.of(), List.of());
         }
 
-        List<ParticipationRequest> requests = requestRepository.findAllByEventIdAndRequesterId(eventId, userId);
-        List<ParticipationRequest> requestsToUpdate = requests.stream().filter(request -> requestStatusUpdateDto.getRequestIds().contains(request.getId())).toList();
-
-        if (requestsToUpdate.stream().anyMatch(request -> !RequestStatus.PENDING.equals(request.getStatus()))) {
-            throw new ParticipationException("Найден запрос не со статусом ожидания.");
+        List<ParticipationRequest> requests = requestRepository.findAllByIdIn(requestStatusUpdateDto.getRequestIds());
+        if (requests.isEmpty()) {
+            log.debug("No requests found for IDs: {}", requestStatusUpdateDto.getRequestIds());
+            return new EventRequestStatusUpdateResult(List.of(), List.of());
         }
 
-        if (event.getConfirmedRequests() + requestsToUpdate.size() > event.getParticipantLimit() && requestStatusUpdateDto.getStatus().equals(RequestStatusToUpdate.CONFIRMED)) {
-            throw new ParticipationException("exceeding the limit of participants");
+        if (requests.stream().anyMatch(req -> !req.getEvent().getId().equals(eventId))) {
+            log.warn("Some requests do not belong to event with id={}", eventId);
+            throw new ParticipationException("Some requests do not belong to the specified event");
         }
 
-        for (ParticipationRequest request : requestsToUpdate) {
-            request.setStatus(RequestStatus.valueOf(requestStatusUpdateDto.getStatus().toString()));
+        if (requests.stream().anyMatch(req -> req.getStatus() != RequestStatus.PENDING)) {
+            log.warn("Some requests are not in PENDING status: {}", requests);
+            throw new ParticipationException("Cannot update requests not in PENDING status");
         }
 
-        requestRepository.saveAll(requestsToUpdate);
+        long confirmedRequestsCount = event.getConfirmedRequests() != null ? event.getConfirmedRequests() : 0L;
+        long participantLimit = event.getParticipantLimit();
 
-        if (requestStatusUpdateDto.getStatus().equals(RequestStatusToUpdate.CONFIRMED)) {
-            event.setConfirmedRequests(event.getConfirmedRequests() + requestsToUpdate.size());
+        List<ParticipationRequest> confirmedRequests = new ArrayList<>();
+        List<ParticipationRequest> rejectedRequests = new ArrayList<>();
+
+        if (requestStatusUpdateDto.getStatus() == RequestStatus.CONFIRMED) {
+            long availableSlots = participantLimit - confirmedRequestsCount;
+            if (availableSlots <= 0) {
+                log.warn("Participant limit already reached for event id={}", eventId);
+                throw new ParticipationException("The participant limit has been reached");
+            }
+
+            long toConfirm = Math.min(requests.size(), availableSlots);
+            confirmedRequests.addAll(requests.subList(0, (int) toConfirm));
+            rejectedRequests.addAll(requests.subList((int) toConfirm, requests.size()));
+
+            rejectedRequests.forEach(req -> req.setStatus(RequestStatus.REJECTED));
+
+        } else if (requestStatusUpdateDto.getStatus() == RequestStatus.REJECTED) {
+            rejectedRequests.addAll(requests);
+        } else {
+            throw new IllegalArgumentException("Unsupported status: " + requestStatusUpdateDto.getStatus());
         }
 
-        eventRepository.save(event);
+        confirmedRequests.forEach(req -> req.setStatus(RequestStatus.CONFIRMED));
 
-        if (requestStatusUpdateDto.getStatus().equals(RequestStatusToUpdate.CONFIRMED)) {
-            result.setConfirmedRequests(ParticipationRequestMapper.toParticipationRequestDtoList(requestsToUpdate));
+        requestRepository.saveAll(confirmedRequests);
+        requestRepository.saveAll(rejectedRequests);
+
+        if (!confirmedRequests.isEmpty()) {
+            event.setConfirmedRequests(confirmedRequestsCount + confirmedRequests.size());
+            eventRepository.save(event);
         }
 
-        if (requestStatusUpdateDto.getStatus().equals(RequestStatusToUpdate.REJECTED)) {
-            result.setRejectedRequests(ParticipationRequestMapper.toParticipationRequestDtoList(requestsToUpdate));
-        }
+        List<ParticipationRequestDto> confirmedDtos = confirmedRequests.isEmpty() ?
+                List.of() :
+                ParticipationRequestMapper.toParticipationRequestDtoList(confirmedRequests);
 
-        return result;
+        List<ParticipationRequestDto> rejectedDtos = rejectedRequests.isEmpty() ?
+                List.of() :
+                ParticipationRequestMapper.toParticipationRequestDtoList(rejectedRequests);
+
+        log.info("Successfully updated {} requests for event id={}: {} confirmed, {} rejected",
+                requests.size(), eventId, confirmedRequests.size(), rejectedRequests.size());
+
+        return new EventRequestStatusUpdateResult(confirmedDtos, rejectedDtos);
     }
 
     @Override
     public Collection<ParticipationRequestDto> getUserRequests(Long userId) {
         log.info("Getting participation requests for user with id={}", userId);
 
-        boolean userExists = userRepository.existsById(userId);
-        if (!userExists) {
-            log.warn("User with id={} not found when getting requests", userId);
-            throw new NotFoundException(String.format("User with id: %s not found", userId));
-        }
-        User user = userRepository.findById(userId).get();
-
+        User user = getUser(userId);
         Collection<ParticipationRequest> requests = requestRepository.findAllByRequester(user);
         log.debug("Found {} requests for user id={}", requests.size(), userId);
 
@@ -170,9 +183,11 @@ public class ParticipationRequestImpl implements ParticipationRequestService {
     public ParticipationRequestDto cancelRequest(Long userId, Long requestId) {
         log.info("User with id={} is cancelling request with id={}", userId, requestId);
 
-        boolean requestExists = requestRepository.existsById(requestId);
-        if (!requestExists) throw new NotFoundException(String.format("Request with id: %s not found", requestId));
-        ParticipationRequest request = requestRepository.findById(requestId).get();
+        ParticipationRequest request = requestRepository.findById(requestId)
+                .orElseThrow(() -> {
+                    log.warn("Request with id={} not found", requestId);
+                    return new NotFoundException("Request with id=" + requestId + " not found");
+                });
 
         boolean userIsRequester = request.getRequester().getId().equals(userId);
         if (!userIsRequester) {
@@ -184,5 +199,21 @@ public class ParticipationRequestImpl implements ParticipationRequestService {
         request.reject();
 
         return ParticipationRequestMapper.toParticipationRequestDto(request);
+    }
+
+    private Event getEvent(Long eventId) {
+        return eventRepository.findById(eventId)
+                .orElseThrow(() -> {
+                    log.warn("Event with id={} not found", eventId);
+                    return new NotFoundException("Event with id=" + eventId + " not found");
+                });
+    }
+
+    private User getUser(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> {
+                    log.warn("User with id={} not found", userId);
+                    return new NotFoundException("User with id=" + userId + " not found");
+                });
     }
 }

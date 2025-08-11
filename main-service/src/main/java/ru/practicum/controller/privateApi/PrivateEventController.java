@@ -1,14 +1,12 @@
 package ru.practicum.controller.privateApi;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Positive;      // ДОБАВЛЕНО
-import jakarta.validation.constraints.PositiveOrZero; // ДОБАВЛЕНО
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.dto.event.EventDTO;
+import ru.practicum.dto.event.EventDTO.Request.EventRequestStatusUpdateRequest;
 import ru.practicum.dto.event.EventDTO.Request.NewEventDto;
 import ru.practicum.dto.event.EventDTO.Request.UpdateEventUserRequest;
 import ru.practicum.dto.event.EventDTO.Response.EventFullDto;
@@ -29,6 +27,7 @@ public class PrivateEventController {
     private final EventService eventService;
     private final ParticipationRequestService participationRequestService;
 
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public EventFullDto createEvent(@Valid @RequestBody NewEventDto event, @PathVariable Long userId) {
@@ -45,8 +44,8 @@ public class PrivateEventController {
     @GetMapping
     public List<EventShortDto> getEvents(
             @PathVariable Long userId,
-            @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
-            @RequestParam(defaultValue = "10") @Positive Integer size
+            @RequestParam(name = "from", defaultValue = "0", required = false) int from,
+            @RequestParam(name = "size", defaultValue = "10", required = false) int size
     ) {
         log.info("PRIVATE: user ID={} requests list of events (from={}, size={})", userId, from, size);
         return eventService.getEvents(userId, from, size);
@@ -75,7 +74,7 @@ public class PrivateEventController {
     public EventRequestStatusUpdateResult updateParticipationRequestStatus(
             @PathVariable Long userId,
             @PathVariable Long eventId,
-            @Valid @RequestBody EventDTO.Request.EventRequestStatusUpdateRequest requestStatusUpdateDto
+            @RequestBody EventRequestStatusUpdateRequest requestStatusUpdateDto
     ) {
         log.info("PRIVATE: user ID={} updating status of applications ID={}: {}", userId, eventId, requestStatusUpdateDto);
         return participationRequestService.updateRequests(userId, eventId, requestStatusUpdateDto);

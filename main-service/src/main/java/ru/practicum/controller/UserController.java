@@ -32,8 +32,8 @@ public class UserController {
     @GetMapping
     public Collection<UserDto> getUsersByIds(
             @RequestParam(name = "ids", required = false) Collection<Long> ids,
-            @RequestParam(name = "from", required = false, defaultValue = "0") int from,
-            @RequestParam(name = "size", required = false, defaultValue = "10") int size
+            @RequestParam(name = "from", defaultValue = "0") int from,
+            @RequestParam(name = "size", defaultValue = "10") int size
     ) {
         log.info("Getting users by ids {}", ids);
         GetUsersRequest request = new GetUsersRequest(ids, from, size);

@@ -3,8 +3,6 @@ package ru.practicum.mapper;
 import ru.practicum.dto.request.ParticipationRequestDTO.Response.ParticipationRequestDto;
 import ru.practicum.model.ParticipationRequest;
 
-import java.util.List;
-
 public class ParticipationRequestMapper {
     /**
      * Don't let anyone instantiate this class.
@@ -13,8 +11,9 @@ public class ParticipationRequestMapper {
 
     }
 
+
     public static ParticipationRequestDto toParticipationRequestDto(ParticipationRequest request) {
-        return ParticipationRequestDto.builder()
+        return ParticipationRequest.builder()
                 .id(request.getId())
                 .created(request.getCreated())
                 .event(request.getEvent().getId())
@@ -23,11 +22,4 @@ public class ParticipationRequestMapper {
                 .build();
 
     }
-
-    public static List<ParticipationRequestDto> toParticipationRequestDtoList(List<ParticipationRequest> requests) {
-        return requests.stream()
-                .map(ParticipationRequestMapper::toParticipationRequestDto)
-                .toList();
-    }
-
 }

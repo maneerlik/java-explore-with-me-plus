@@ -59,7 +59,7 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventFullDto createEvent(NewEventDto newEventDto, Long userId) {
-        validateEventDate(newEventDto.getEventDate(), 3);
+        validateEventDate(newEventDto.getEventDate(), 1);
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с ID=" + userId + " не найден."));

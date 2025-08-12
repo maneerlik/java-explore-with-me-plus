@@ -1,6 +1,5 @@
 package ru.practicum.dto.event;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.Value;
@@ -139,12 +138,10 @@ public enum EventDTO {
     }
 
     interface HasCreatedOn {
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
         LocalDateTime getCreatedOn();
     }
 
     interface HasPublishedOn {
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
         LocalDateTime getPublishedOn();
     }
 

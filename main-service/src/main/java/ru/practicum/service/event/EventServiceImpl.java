@@ -37,7 +37,6 @@ import ru.practicum.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -296,14 +295,38 @@ public class EventServiceImpl implements EventService {
         if (rangeStart != null && rangeEnd != null && rangeStart.isAfter(rangeEnd)) {
             throw new ValidationException("Дата начала не может быть позже даты окончания.");
         }
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Event> query = cb.createQuery(Event.class);
+        Root<Event> eventRoot = query.from(Event.class);
 
-        List<Predicate> predicates = buildAdminSearchPredicates(users, states, categories, rangeStart, rangeEnd);
+        List<Predicate> predicates = new ArrayList<>();
 
-        List<Event> events = findEventsWithPredicates(predicates, null, from, size);
-
-        if (events.isEmpty()) {
-            return Collections.emptyList();
+        if (users != null && !users.isEmpty()) {
+            predicates.add(eventRoot.get("initiator").get("id").in(users));
         }
+
+        if (states != null && !states.isEmpty()) {
+            predicates.add(eventRoot.get("state").in(states));
+        }
+
+        if (categories != null && !categories.isEmpty()) {
+            predicates.add(eventRoot.get("category").get("id").in(categories));
+        }
+
+        if (rangeStart != null) {
+            predicates.add(cb.greaterThanOrEqualTo(eventRoot.get("eventDate"), rangeStart));
+        }
+
+        if (rangeEnd != null) {
+            predicates.add(cb.lessThanOrEqualTo(eventRoot.get("eventDate"), rangeEnd));
+        }
+
+        query.where(predicates.toArray(new Predicate[0]));
+
+        List<Event> events = entityManager.createQuery(query)
+                .setFirstResult(from)
+                .setMaxResults(size)
+                .getResultList();
 
         return events.stream()
                 .map(EventMapper::toFullEventDto)
@@ -446,8 +469,8 @@ public class EventServiceImpl implements EventService {
 
     @Async
     public void sendHitAsync(String uri, String ip) {
-            HitDto hitDto = new HitDto(null, appName, uri, ip, LocalDateTime.now());
-            statsClient.saveHit(hitDto);
+        HitDto hitDto = new HitDto(null, appName, uri, ip, LocalDateTime.now());
+        statsClient.saveHit(hitDto);
     }
 
     private Event findEventByIdAndInitiatorId(Long eventId, Long userId) {

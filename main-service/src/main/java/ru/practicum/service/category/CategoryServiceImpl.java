@@ -42,13 +42,26 @@ public class CategoryServiceImpl implements CategoryService {
         categoryRepository.deleteById(catId);
     }
 
-    @Override
     @Transactional
-    public CategoryDto updateCategory(Long catId, NewCategoryDto newCategoryDto) {
-        Category category = categoryRepository.findById(catId)
+    @Override
+    public CategoryDto updateCategory(Long catId, NewCategoryDto categoryDto) {
+        Category categoryToUpdate = categoryRepository.findById(catId)
                 .orElseThrow(() -> new NotFoundException("Категория с ID=" + catId + " не найдена."));
-        category.setName(newCategoryDto.getName());
-        return CategoryMapper.toCategoryDto(categoryRepository.save(category));
+
+        String newName = categoryDto.getName();
+
+        if (newName.equals(categoryToUpdate.getName())) {
+            return CategoryMapper.toCategoryDto(categoryToUpdate);
+        }
+
+        if (categoryRepository.existsByName(newName)) {
+            throw new ConflictException("Имя категории '" + newName + "' уже занято.");
+        }
+
+        categoryToUpdate.setName(newName);
+        Category savedCategory = categoryRepository.save(categoryToUpdate);
+
+        return CategoryMapper.toCategoryDto(savedCategory);
     }
 
     @Override

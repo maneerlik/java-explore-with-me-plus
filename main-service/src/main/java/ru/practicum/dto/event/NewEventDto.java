@@ -2,10 +2,7 @@ package ru.practicum.dto.event;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -38,7 +35,10 @@ public class NewEventDto {
     private LocationDto location;
 
     private Boolean paid = false;
+
+    @PositiveOrZero(message = "Лимит участников не может быть отрицательным.")
     private Long participantLimit = 0L;
+
     private Boolean requestModeration = true;
 
     @NotBlank(message = "Заголовок не может быть пустым.")

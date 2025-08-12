@@ -7,8 +7,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.dto.event.EventDTO.Request.UpdateEventAdminRequest;
-import ru.practicum.dto.event.EventDTO.Response.EventFullDto;
+import ru.practicum.dto.event.FullEventDto;
+import ru.practicum.dto.event.UpdateEventAdminDto;
 import ru.practicum.enums.EventState;
 import ru.practicum.service.event.EventService;
 
@@ -24,21 +24,21 @@ public class AdminEventController {
 
 
     @GetMapping
-    public List<EventFullDto> getEvents(@RequestParam(required = false) List<Long> users,
-                                        @RequestParam(required = false) List<EventState> states,
-                                        @RequestParam(required = false) List<Long> categories,
-                                        @RequestParam(required = false) String rangeStart,
-                                        @RequestParam(required = false) String rangeEnd,
-                                        @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
-                                        @RequestParam(defaultValue = "10") @Positive Integer size
+    public List<FullEventDto> getEvents(@RequestParam(required = false) List<Long> users,
+                                            @RequestParam(required = false) List<EventState> states,
+                                            @RequestParam(required = false) List<Long> categories,
+                                            @RequestParam(required = false) String rangeStart,
+                                            @RequestParam(required = false) String rangeEnd,
+                                            @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+                                            @RequestParam(defaultValue = "10") @Positive Integer size
     ) {
         return eventService.getEventsByAdmin(users, states, categories, rangeStart, rangeEnd, from, size);
     }
 
     @PatchMapping("/{eventId}")
-    public EventFullDto updateEventByAdmin(
+    public FullEventDto updateEventByAdmin(
             @PathVariable(name = "eventId") Long eventId,
-            @Valid @RequestBody UpdateEventAdminRequest updateEventAdminDto
+            @Valid @RequestBody UpdateEventAdminDto updateEventAdminDto
     ) {
         return eventService.updateEventByAdmin(eventId, updateEventAdminDto);
     }

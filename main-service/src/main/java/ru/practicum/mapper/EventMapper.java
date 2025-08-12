@@ -1,8 +1,8 @@
 package ru.practicum.mapper;
 
-import ru.practicum.dto.event.EventDTO.Request.NewEventDto;
-import ru.practicum.dto.event.EventDTO.Response.EventFullDto;
-import ru.practicum.dto.event.EventDTO.Response.EventShortDto;
+import ru.practicum.dto.event.EventShortDto;
+import ru.practicum.dto.event.FullEventDto;
+import ru.practicum.dto.event.NewEventDto;
 import ru.practicum.enums.EventState;
 import ru.practicum.model.Category;
 import ru.practicum.model.Event;
@@ -57,14 +57,14 @@ public final class EventMapper {
         );
     }
 
-    public static EventFullDto toFullEventDto(Event event) {
-        return new EventFullDto(
+    public static FullEventDto toFullEventDto(Event event) {
+        return new FullEventDto(
                 event.getId(),
                 event.getAnnotation(),
-                CategoryMapper.toCategoryDto(event.getCategory()),
+                event.getTitle(),
+                event.getDescription(),
                 event.getConfirmedRequests(),
                 event.getCreatedOn(),
-                event.getDescription(),
                 event.getEventDate(),
                 UserMapper.toShortDto(event.getInitiator()),
                 LocationMapper.toLocationDto(event.getLocation()),
@@ -73,7 +73,7 @@ public final class EventMapper {
                 event.getPublishedOn(),
                 event.getRequestModeration(),
                 event.getState(),
-                event.getTitle(),
+                CategoryMapper.toCategoryDto(event.getCategory()),
                 event.getViews()
         );
     }
@@ -82,7 +82,7 @@ public final class EventMapper {
         return events.stream().map(EventMapper::toEventShortDto).collect(Collectors.toList());
     }
 
-    public static List<EventFullDto> toEventFullDtoList(List<Event> events) {
+    public static List<FullEventDto> toEventFullDtoList(List<Event> events) {
         return events.stream().map(EventMapper::toFullEventDto).collect(Collectors.toList());
     }
 }

@@ -6,12 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.dto.event.EventDTO.Request.EventRequestStatusUpdateRequest;
-import ru.practicum.dto.event.EventDTO.Request.NewEventDto;
-import ru.practicum.dto.event.EventDTO.Request.UpdateEventUserRequest;
-import ru.practicum.dto.event.EventDTO.Response.EventFullDto;
-import ru.practicum.dto.event.EventDTO.Response.EventRequestStatusUpdateResult;
-import ru.practicum.dto.event.EventDTO.Response.EventShortDto;
+import ru.practicum.dto.event.*;
 import ru.practicum.dto.request.ParticipationRequestDTO.Response.ParticipationRequestDto;
 import ru.practicum.service.event.EventService;
 import ru.practicum.service.request.ParticipationRequestService;
@@ -30,13 +25,13 @@ public class PrivateEventController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public EventFullDto createEvent(@Valid @RequestBody NewEventDto event, @PathVariable Long userId) {
+    public FullEventDto createEvent(@Valid @RequestBody NewEventDto event, @PathVariable Long userId) {
         log.info("PRIVATE: user ID={} creating event: {}", userId, event);
         return eventService.createEvent(event, userId);
     }
 
     @GetMapping("/{eventId}")
-    public EventFullDto getEvent(@PathVariable Long userId, @PathVariable Long eventId) {
+    public FullEventDto getEvent(@PathVariable Long userId, @PathVariable Long eventId) {
         log.info("PRIVATE: user ID={} requests event ID={}", userId, eventId);
         return eventService.getEventByUser(userId, eventId);
     }
@@ -61,10 +56,10 @@ public class PrivateEventController {
     }
 
     @PatchMapping("/{eventId}")
-    public EventFullDto updateEvent(
+    public FullEventDto updateEvent(
             @PathVariable Long userId,
             @PathVariable Long eventId,
-            @Valid @RequestBody UpdateEventUserRequest event
+            @Valid @RequestBody UpdateEventUserDto event
     ) {
         log.info("PRIVATE: user ID={} updating event ID={}: {}", userId, eventId, event);
         return eventService.updateEventByUser(userId, eventId, event);
@@ -74,7 +69,7 @@ public class PrivateEventController {
     public EventRequestStatusUpdateResult updateParticipationRequestStatus(
             @PathVariable Long userId,
             @PathVariable Long eventId,
-            @RequestBody EventRequestStatusUpdateRequest requestStatusUpdateDto
+            @RequestBody EventRequestStatusUpdateDto requestStatusUpdateDto
     ) {
         log.info("PRIVATE: user ID={} updating status of applications ID={}: {}", userId, eventId, requestStatusUpdateDto);
         return participationRequestService.updateRequests(userId, eventId, requestStatusUpdateDto);

@@ -38,14 +38,17 @@ public class StatsServiceImpl implements StatsService {
             throw new ValidationException("Дата начала диапазона не может быть позже даты окончания.");
         }
 
-        log.info("Запрос статистики: unique={}, uris={}", unique, uris);
+        boolean isUriFilterActive = uris != null && !uris.isEmpty();
+        log.info("Запрос статистики: unique={}, uris active={}, uris={}", unique, isUriFilterActive, uris);
 
         if (unique) {
-            log.debug("Вызов getStatsUnique");
-            return statsRepository.getStatsUnique(start, end, uris);
+            return isUriFilterActive ?
+                    statsRepository.getStatsUniqueIpForUris(start, end, uris) :
+                    statsRepository.getStatsUniqueIp(start, end);
         } else {
-            log.debug("Вызов getStatsAll");
-            return statsRepository.getStatsAll(start, end, uris);
+            return isUriFilterActive ?
+                    statsRepository.getStatsAllForUris(start, end, uris) :
+                    statsRepository.getStatsAll(start, end);
         }
     }
 }

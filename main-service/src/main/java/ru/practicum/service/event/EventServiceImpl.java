@@ -11,16 +11,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.dto.event.*;
 import ru.practicum.dto.location.LocationDto;
 import ru.practicum.mapper.LocationMapper;
 import ru.practicum.model.Category;
 import ru.practicum.model.Location;
 import ru.practicum.repository.CategoryRepository;
-import ru.practicum.dto.event.EventDTO.Request.NewEventDto;
-import ru.practicum.dto.event.EventDTO.Request.UpdateEventAdminRequest;
-import ru.practicum.dto.event.EventDTO.Request.UpdateEventUserRequest;
-import ru.practicum.dto.event.EventDTO.Response.EventFullDto;
-import ru.practicum.dto.event.EventDTO.Response.EventShortDto;
 import ru.practicum.enums.EventState;
 import ru.practicum.enums.SortValue;
 import ru.practicum.enums.StateActionAdmin;
@@ -56,7 +52,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public EventFullDto createEvent(NewEventDto newEventDto, Long userId) {
+    public FullEventDto createEvent(NewEventDto newEventDto, Long userId) {
         validateEventDate(newEventDto.getEventDate(), 2);
 
         User user = userRepository.findById(userId)
@@ -82,7 +78,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventFullDto getEventByUser(Long userId, Long eventId) {
+    public FullEventDto getEventByUser(Long userId, Long eventId) {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException("Пользователь с ID=" + userId + " не найден.");
         }
@@ -93,7 +89,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public EventFullDto updateEventByUser(Long userId, Long eventId, UpdateEventUserRequest updateRequest) {
+    public FullEventDto updateEventByUser(Long userId, Long eventId, UpdateEventUserDto updateRequest) {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException("Пользователь с ID=" + userId + " не найден.");
         }
@@ -123,7 +119,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public EventFullDto updateEventByAdmin(Long eventId, UpdateEventAdminRequest updateRequest) {
+    public FullEventDto updateEventByAdmin(Long eventId, UpdateEventAdminDto updateRequest) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Событие с ID=" + eventId + " не найдено."));
 
@@ -218,7 +214,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public EventFullDto getEvent(Long eventId, HttpServletRequest request) {
+    public FullEventDto getEvent(Long eventId, HttpServletRequest request) {
         Event event = eventRepository.findByIdAndState(eventId, EventState.PUBLISHED)
                 .orElseThrow(() -> new NotFoundException("Опубликованное событие с ID=" + eventId + " не найдено."));
 
@@ -229,7 +225,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventFullDto> getEventsByAdmin(List<Long> users, List<EventState> states, List<Long> categories,
+    public List<FullEventDto> getEventsByAdmin(List<Long> users, List<EventState> states, List<Long> categories,
                                                String rangeStart, String rangeEnd, Integer from, Integer size) {
         LocalDateTime start = parseDate(rangeStart);
         LocalDateTime end = parseDate(rangeEnd);
@@ -275,7 +271,7 @@ public class EventServiceImpl implements EventService {
 
     private void updateEventFields(Event event, String annotation, Long categoryId, String description,
                                    LocalDateTime eventDate, LocationDto locationDto, Boolean paid,
-                                   Integer participantLimit, Boolean requestModeration, String title) {
+                                   Long participantLimit, Boolean requestModeration, String title) {
         if (annotation != null && !annotation.isBlank()) {
             event.setAnnotation(annotation);
         }

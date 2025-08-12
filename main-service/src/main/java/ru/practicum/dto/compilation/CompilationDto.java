@@ -3,9 +3,10 @@ package ru.practicum.dto.compilation;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.practicum.dto.event.EventDTO.Response.EventShortDto;
+import ru.practicum.dto.event.EventShortDto;
 
 import java.util.Set;
+
 
 @Data
 @NoArgsConstructor

@@ -7,8 +7,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.dto.event.EventDTO.Response.EventFullDto;
-import ru.practicum.dto.event.EventDTO.Response.EventShortDto;
+import ru.practicum.dto.event.EventShortDto;
+import ru.practicum.dto.event.FullEventDto;
 import ru.practicum.enums.SortValue;
 import ru.practicum.service.event.EventService;
 
@@ -40,8 +40,8 @@ public class PublicEventController {
     }
 
     @GetMapping("/{id}")
-    public EventFullDto getEvent(@PathVariable Long id,
-                                 HttpServletRequest request) {
+    public FullEventDto getEvent(@PathVariable Long id,
+                                     HttpServletRequest request) {
         return eventService.getEvent(id, request);
     }
 }

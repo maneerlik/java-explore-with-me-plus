@@ -1,7 +1,7 @@
 package ru.practicum.service.user;
 
-import ru.practicum.dto.user.UserDTO.Request.NewUserRequest;
-import ru.practicum.dto.user.UserDTO.Response.UserDto;
+import ru.practicum.dto.user.NewUserRequest;
+import ru.practicum.dto.user.UserDto;
 import ru.practicum.dto.user.in.GetUsersRequest;
 import ru.practicum.model.User;
 

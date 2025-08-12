@@ -116,7 +116,6 @@ public enum EventDTO {
     interface HasEventDate {
         @NotNull(message = "Event date cannot be null")
         @FutureOrPresent(message = "Event date must be in the future or present")
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
         LocalDateTime getEventDate();
     }
 

@@ -41,3 +41,6 @@ logging:
     org.hibernate.type: TRACE
     org.hibernate.orm.jdbc.bind: TRACE
     liquibase: DEBUG
+
+stats-server:
+  url: http://stats-server:9090

@@ -107,7 +107,7 @@ public class EventServiceImpl implements EventService {
         updateEventFields(event, updateRequest.getAnnotation(), updateRequest.getCategory(),
                 updateRequest.getDescription(), updateRequest.getEventDate(),
                 updateRequest.getLocation(), updateRequest.getPaid(),
-                updateRequest.getParticipantLimit(), updateRequest.getRequestModeration(),
+                Math.toIntExact(updateRequest.getParticipantLimit()), updateRequest.getRequestModeration(),
                 updateRequest.getTitle());
 
         if (updateRequest.getStateAction() != null) {
@@ -145,7 +145,7 @@ public class EventServiceImpl implements EventService {
         updateEventFields(event, updateRequest.getAnnotation(), updateRequest.getCategory(),
                 updateRequest.getDescription(), updateRequest.getEventDate(),
                 updateRequest.getLocation(), updateRequest.getPaid(),
-                updateRequest.getParticipantLimit(), updateRequest.getRequestModeration(),
+                Math.toIntExact(updateRequest.getParticipantLimit()), updateRequest.getRequestModeration(),
                 updateRequest.getTitle());
 
         return EventMapper.toFullEventDto(eventRepository.save(event));

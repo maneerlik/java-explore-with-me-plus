@@ -20,7 +20,6 @@ import java.util.List;
 public class PublicCompilationController {
     private final CompilationService compilationService;
 
-
     @GetMapping("/compilations")
     public ResponseEntity<List<CompilationDto>> getAllCompilations(
             @RequestParam(required = false) Boolean pinned,

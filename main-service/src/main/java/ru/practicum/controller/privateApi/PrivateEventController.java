@@ -8,13 +8,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.dto.event.EventDTO.Request.EventRequestStatusUpdateRequest;
-import ru.practicum.dto.event.EventDTO.Request.NewEventDto;
-import ru.practicum.dto.event.EventDTO.Request.UpdateEventUserRequest;
-import ru.practicum.dto.event.EventDTO.Response.EventFullDto;
-import ru.practicum.dto.event.EventDTO.Response.EventRequestStatusUpdateResult;
-import ru.practicum.dto.event.EventDTO.Response.EventShortDto;
-import ru.practicum.dto.request.ParticipationRequestDTO.Response.ParticipationRequestDto;
+import ru.practicum.dto.event.EventFullDto;
+import ru.practicum.dto.event.EventShortDto;
+import ru.practicum.dto.event.NewEventDto;
+import ru.practicum.dto.event.UpdateEventUserRequest;
+import ru.practicum.dto.request.EventRequestStatusUpdateRequest;
+import ru.practicum.dto.request.EventRequestStatusUpdateResult;
+import ru.practicum.dto.request.ParticipationRequestDto;
 import ru.practicum.service.event.EventService;
 import ru.practicum.service.request.ParticipationRequestService;
 
@@ -26,6 +26,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping(path = "/users/{userId}/events")
 public class PrivateEventController {
+
     private final EventService eventService;
     private final ParticipationRequestService participationRequestService;
 

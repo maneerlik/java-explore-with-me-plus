@@ -13,16 +13,12 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.HitDto;
 import ru.practicum.StatsClient;
-import ru.practicum.dto.event.EventDTO.Request.NewEventDto;
-import ru.practicum.dto.event.EventDTO.Request.UpdateEventAdminRequest;
-import ru.practicum.dto.event.EventDTO.Request.UpdateEventUserRequest;
-import ru.practicum.dto.event.EventDTO.Response.EventFullDto;
-import ru.practicum.dto.event.EventDTO.Response.EventShortDto;
+import ru.practicum.dto.event.*;
 import ru.practicum.dto.location.LocationDto;
 import ru.practicum.enums.EventState;
 import ru.practicum.enums.SortValue;
 import ru.practicum.enums.StateActionAdmin;
-import ru.practicum.enums.StateActionUser;
+import ru.practicum.enums.UserEventStateAction;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.exception.ValidationException;
@@ -172,14 +168,15 @@ public class EventServiceImpl implements EventService {
         updateEventFromUserRequest(event, updateRequest);
 
         if (updateRequest.getStateAction() != null) {
-            if (updateRequest.getStateAction() == StateActionUser.SEND_TO_REVIEW) {
+            if (updateRequest.getStateAction() == UserEventStateAction.SEND_TO_REVIEW) {
                 event.setState(EventState.PENDING);
-            } else if (updateRequest.getStateAction() == StateActionUser.CANCEL_REVIEW) {
+            } else if (updateRequest.getStateAction() == UserEventStateAction.CANCEL_REVIEW) {
                 event.setState(EventState.CANCELED);
             }
         }
 
-        return EventMapper.toFullEventDto(eventRepository.save(event));
+        Event updatedEvent = eventRepository.save(event);
+        return EventMapper.toFullEventDto(updatedEvent);
     }
 
     @Override

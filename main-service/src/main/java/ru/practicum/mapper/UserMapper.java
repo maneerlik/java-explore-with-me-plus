@@ -1,27 +1,39 @@
 package ru.practicum.mapper;
 
-import ru.practicum.dto.user.UserDTO.Response.UserDto;
-import ru.practicum.dto.user.UserDTO.Response.UserShortDto;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import ru.practicum.dto.user.NewUserRequest;
+import ru.practicum.dto.user.UserDto;
+import ru.practicum.dto.user.UserShortDto;
 import ru.practicum.model.User;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class UserMapper {
-    /**
-     * Don't let anyone instantiate this class.
-     */
-    private UserMapper() {
 
+    public static User toUser(NewUserRequest requestDto) {
+        if (requestDto == null) {
+            return null;
+        }
+
+        return User.builder()
+                .name(requestDto.getName())
+                .email(requestDto.getEmail())
+                .build();
     }
 
+    public static UserDto toUserDto(User user) {
+        if (user == null) {
+            return null;
+        }
 
-    public static UserDto toFullDto(User user) {
         return new UserDto(user.getId(), user.getEmail(), user.getName());
     }
 
     public static UserShortDto toShortDto(User user) {
-        return new UserShortDto(user.getId(), user.getName());
-    }
+        if (user == null) {
+            return null;
+        }
 
-    public static UserDto toUserDto(User user) {
-        return new UserDto(user.getId(), user.getEmail(), user.getName());
+        return new UserShortDto(user.getId(), user.getName());
     }
 }

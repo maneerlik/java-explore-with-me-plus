@@ -2,11 +2,7 @@ package ru.practicum.service.event;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.dto.event.EventDTO.Request.NewEventDto;
-import ru.practicum.dto.event.EventDTO.Request.UpdateEventAdminRequest;
-import ru.practicum.dto.event.EventDTO.Request.UpdateEventUserRequest;
-import ru.practicum.dto.event.EventDTO.Response.EventFullDto;
-import ru.practicum.dto.event.EventDTO.Response.EventShortDto;
+import ru.practicum.dto.event.*;
 import ru.practicum.enums.EventState;
 import ru.practicum.enums.SortValue;
 

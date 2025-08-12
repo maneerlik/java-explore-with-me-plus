@@ -233,8 +233,6 @@ public enum EventDTO {
             LocalDateTime eventDate;
             LocationDto location;
             Boolean paid;
-            Long participantLimit;
-            Boolean requestModeration;
             StateActionAdmin stateAction;
             String title;
 

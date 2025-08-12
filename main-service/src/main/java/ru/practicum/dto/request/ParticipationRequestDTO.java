@@ -79,8 +79,6 @@ public enum ParticipationRequestDTO {
         ;
 
         @Value
-        @Data
-        @AllArgsConstructor
         @Builder
         public static class ParticipationRequestDto implements HasCreated {
             Long id;

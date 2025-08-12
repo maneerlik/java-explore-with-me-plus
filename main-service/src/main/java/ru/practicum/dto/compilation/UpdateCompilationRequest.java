@@ -1,6 +1,6 @@
 package ru.practicum.dto.compilation;
 
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,6 +16,6 @@ public class UpdateCompilationRequest {
 
     private Boolean pinned;
 
-    @Size(min = 1, max = 50, message = "Длина заголовка должна быть от 1 до 50 символов.")
+    @NotBlank
     private String title;
 }

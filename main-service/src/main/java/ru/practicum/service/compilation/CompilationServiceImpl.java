@@ -28,9 +28,13 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     @Transactional
     public CompilationDto createCompilation(NewCompilationDto newDto) {
+        Set<Long> eventIds = newDto.getEvents();
         Set<Event> events = new HashSet<>();
-        if (!newDto.getEvents().isEmpty()) {
-            events.addAll(eventRepository.findAllById(newDto.getEvents()));
+        if (eventIds != null && !eventIds.isEmpty()) {
+            events.addAll(eventRepository.findAllById(eventIds));
+            if (events.size() != eventIds.size()) {
+                throw new NotFoundException("Одно или несколько событий из списка не найдены.");
+            }
         }
 
         Compilation compilation = new Compilation(null, events, newDto.getPinned(), newDto.getTitle());
@@ -68,7 +72,7 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Override
     public List<CompilationDto> getAllCompilations(Boolean pinned, int from, int size) {
-        PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
+        PageRequest page =  PageRequest.of(from / size, size);
         List<Compilation> compilations;
         if (pinned != null) {
             compilations = compilationRepository.findAllByPinned(pinned, page).getContent();

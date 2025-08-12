@@ -69,13 +69,14 @@ public class UserServiceImpl implements UserService {
     }
 
     public UserDto getUser(Long userId) {
-        checkExistUser(userId);
-        return UserMapper.toUserDto(userRepository.findById(userId).get());
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException(String.format("User with id: %s not found", userId)));
+        return UserMapper.toUserDto(user);
     }
 
     public User getUserEntity(Long userId) {
-        checkExistUser(userId);
-        return userRepository.findById(userId).get();
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException(String.format("User with id: %s not found", userId)));
     }
 
     @Transactional

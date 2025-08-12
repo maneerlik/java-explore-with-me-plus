@@ -12,6 +12,7 @@ import ru.practicum.dto.event.EventDTO.Response.EventShortDto;
 import ru.practicum.enums.SortValue;
 import ru.practicum.service.event.EventService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -28,8 +29,8 @@ public class PublicEventController {
             @RequestParam(required = false) String text,
             @RequestParam(required = false) List<Long> categories,
             @RequestParam(required = false) Boolean paid,
-            @RequestParam(required = false) String rangeStart,
-            @RequestParam(required = false) String rangeEnd,
+            @RequestParam(required = false) LocalDateTime rangeStart,
+            @RequestParam(required = false) LocalDateTime rangeEnd,
             @RequestParam(defaultValue = "false") Boolean onlyAvailable,
             @RequestParam(required = false) SortValue sort,
             @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,

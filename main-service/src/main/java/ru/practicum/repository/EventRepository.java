@@ -2,6 +2,9 @@ package ru.practicum.repository;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import ru.practicum.enums.EventState;
 import ru.practicum.model.Event;
 
@@ -15,4 +18,9 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     Optional<Event> findByIdAndState(Long eventId, EventState state);
 
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE Event e SET e.views = e.views + 1 WHERE e.id = :eventId")
+    void incrementViews(@Param("eventId") Long eventId);
+
+    boolean existsByCategoryId(Long categoryId);
 }

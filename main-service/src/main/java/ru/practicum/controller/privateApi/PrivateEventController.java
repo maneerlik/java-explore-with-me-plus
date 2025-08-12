@@ -1,13 +1,15 @@
 package ru.practicum.controller.privateApi;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.event.*;
-import ru.practicum.dto.request.ParticipationRequestDTO.Response.ParticipationRequestDto;
+import ru.practicum.dto.request.ParticipationRequestDto;
 import ru.practicum.service.event.EventService;
 import ru.practicum.service.request.ParticipationRequestService;
 
@@ -22,27 +24,26 @@ public class PrivateEventController {
     private final EventService eventService;
     private final ParticipationRequestService participationRequestService;
 
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public FullEventDto createEvent(@Valid @RequestBody NewEventDto event, @PathVariable Long userId) {
-        log.info("PRIVATE: user ID={} creating event: {}", userId, event);
+        log.info("PRIVATE-API: Пользователь ID={} создает событие: {}", userId, event);
         return eventService.createEvent(event, userId);
     }
 
     @GetMapping("/{eventId}")
     public FullEventDto getEvent(@PathVariable Long userId, @PathVariable Long eventId) {
-        log.info("PRIVATE: user ID={} requests event ID={}", userId, eventId);
+        log.info("PRIVATE-API: Пользователь ID={} запрашивает свое событие ID={}", userId, eventId);
         return eventService.getEventByUser(userId, eventId);
     }
 
     @GetMapping
     public List<EventShortDto> getEvents(
             @PathVariable Long userId,
-            @RequestParam(name = "from", defaultValue = "0", required = false) int from,
-            @RequestParam(name = "size", defaultValue = "10", required = false) int size
+            @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+            @RequestParam(defaultValue = "10") @Positive Integer size
     ) {
-        log.info("PRIVATE: user ID={} requests list of events (from={}, size={})", userId, from, size);
+        log.info("PRIVATE-API: Пользователь ID={} запрашивает список своих событий (from={}, size={})", userId, from, size);
         return eventService.getEvents(userId, from, size);
     }
 
@@ -51,7 +52,7 @@ public class PrivateEventController {
             @PathVariable Long userId,
             @PathVariable Long eventId
     ) {
-        log.info("PRIVATE: user ID={} requests list of applications ID={}", userId, eventId);
+        log.info("PRIVATE-API: Пользователь ID={} запрашивает заявки на участие для своего события ID={}", userId, eventId);
         return participationRequestService.getRequestsByOwner(userId, eventId);
     }
 
@@ -61,7 +62,7 @@ public class PrivateEventController {
             @PathVariable Long eventId,
             @Valid @RequestBody UpdateEventUserDto event
     ) {
-        log.info("PRIVATE: user ID={} updating event ID={}: {}", userId, eventId, event);
+        log.info("PRIVATE-API: Пользователь ID={} обновляет свое событие ID={}: {}", userId, eventId, event);
         return eventService.updateEventByUser(userId, eventId, event);
     }
 
@@ -69,9 +70,9 @@ public class PrivateEventController {
     public EventRequestStatusUpdateResult updateParticipationRequestStatus(
             @PathVariable Long userId,
             @PathVariable Long eventId,
-            @RequestBody EventRequestStatusUpdateDto requestStatusUpdateDto
+            @Valid @RequestBody EventRequestStatusUpdateRequest requestStatusUpdateDto
     ) {
-        log.info("PRIVATE: user ID={} updating status of applications ID={}: {}", userId, eventId, requestStatusUpdateDto);
+        log.info("PRIVATE-API: Пользователь ID={} обновляет статусы заявок для события ID={}: {}", userId, eventId, requestStatusUpdateDto);
         return participationRequestService.updateRequests(userId, eventId, requestStatusUpdateDto);
     }
 }

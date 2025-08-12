@@ -24,10 +24,6 @@ spring:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
-  jackson:
-    date-format: "yyyy-MM-dd HH:mm:ss"
-    time-zone: UTC
-
 server:
   port: 8080
 

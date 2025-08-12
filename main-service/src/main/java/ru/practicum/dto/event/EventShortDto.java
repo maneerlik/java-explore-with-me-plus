@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.practicum.dto.category.CategoryDto;
-import ru.practicum.dto.user.UserDTO;
+import ru.practicum.dto.user.UserShortDto;
 
 import java.time.LocalDateTime;
 
@@ -21,7 +21,7 @@ public class EventShortDto {
     private Long confirmedRequests;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime eventDate;
-    private UserDTO.Response.UserShortDto initiator;
+    private UserShortDto initiator;
     private Boolean paid;
     private String title;
     private Long views;

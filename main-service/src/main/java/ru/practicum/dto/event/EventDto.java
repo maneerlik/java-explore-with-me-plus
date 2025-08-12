@@ -8,7 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.practicum.model.Location;
+import ru.practicum.dto.location.LocationDto;
 
 import java.time.LocalDateTime;
 
@@ -32,7 +32,7 @@ public class EventDto {
     private LocalDateTime eventDate;
 
     @NotNull
-    private Location location;
+    private LocationDto location;
     private Boolean paid;
     private Long participantLimit;
     private Boolean requestModeration;
@@ -43,5 +43,5 @@ public class EventDto {
 
     @NotNull
     @JsonProperty("category")
-    private Long categoryId;
+    private Long category;
 }

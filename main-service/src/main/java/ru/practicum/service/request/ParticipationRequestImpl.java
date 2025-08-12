@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.dto.event.EventRequestStatusUpdateDto;
+import ru.practicum.dto.event.EventRequestStatusUpdateRequest;
 import ru.practicum.dto.event.EventRequestStatusUpdateResult;
-import ru.practicum.dto.request.ParticipationRequestDTO.Response.ParticipationRequestDto;
+import ru.practicum.dto.request.ParticipationRequestDto;
 import ru.practicum.enums.EventState;
 import ru.practicum.enums.RequestStatus;
 import ru.practicum.exception.ConflictException;
@@ -78,7 +78,7 @@ public class ParticipationRequestImpl implements ParticipationRequestService {
     public EventRequestStatusUpdateResult updateRequests(
             Long userId,
             Long eventId,
-            EventRequestStatusUpdateDto requestStatusUpdateDto
+            EventRequestStatusUpdateRequest requestStatusUpdateDto
     ) {
         log.info("User with id={} is modifying requests for event with id={}", userId, eventId);
 

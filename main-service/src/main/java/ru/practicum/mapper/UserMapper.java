@@ -1,7 +1,7 @@
 package ru.practicum.mapper;
 
-import ru.practicum.dto.user.UserDTO.Response.UserDto;
-import ru.practicum.dto.user.UserDTO.Response.UserShortDto;
+import ru.practicum.dto.user.UserDto;
+import ru.practicum.dto.user.UserShortDto;
 import ru.practicum.model.User;
 
 public final class UserMapper {

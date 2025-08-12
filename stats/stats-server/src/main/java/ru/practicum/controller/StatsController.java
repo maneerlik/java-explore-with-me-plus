@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.HitDto;
 import ru.practicum.StatsDto;
@@ -33,6 +34,7 @@ public class StatsController {
      * @return HitDto объект созданного запроса
      */
     @PostMapping("/hit")
+    @ResponseStatus(HttpStatus.CREATED)
     public HitDto createHit(@RequestBody @Valid HitDto hitDto) {
         log.info("Creating hit {} in the service", hitDto);
         return statsService.create(hitDto);

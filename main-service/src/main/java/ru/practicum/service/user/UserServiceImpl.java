@@ -15,9 +15,7 @@ import ru.practicum.mapper.UserMapper;
 import ru.practicum.model.User;
 import ru.practicum.repository.UserRepository;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -49,18 +47,26 @@ public class UserServiceImpl implements UserService {
     }
 
     public Collection<UserDto> getUsers(GetUsersRequest request) {
-        List<Long> ids = Optional.ofNullable(request.ids()).stream()
-                .flatMap(Collection::stream)
-                .toList();
-
+        Collection<Long> ids = request.ids();
         int from = request.from();
         int size = request.size();
 
-        log.info("Getting users by ids={}, from={}, size={}", ids.isEmpty() ? "all" : ids, from, size);
+        if (size <= 0) return List.of();
+
+        log.info("Getting users by ids={}, from={}, size={}", ids, from, size);
 
         Pageable pageable = PageRequest.of(from / size, size);
 
-        List<User> users = userRepository.findUsersByIds(ids, pageable);
+        List<User> users;
+
+        if (ids == null) {
+            users = userRepository.findAll(pageable).getContent();
+        } else if (ids.isEmpty()) {
+            users = List.of();
+        } else {
+            users = userRepository.findByIdIn(ids, pageable);
+        }
+
         log.debug("Found {} users", users.size());
 
         return users.stream()

@@ -25,7 +25,7 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
   jackson:
-    date-format: yyyy-MM-dd'T'HH:mm:ss
+    date-format: yyyy-MM-dd HH:mm:ss
     time-zone: UTC
 
 server:

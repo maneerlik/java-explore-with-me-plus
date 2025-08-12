@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.HitDto;
-import ru.practicum.StatsDto;
+import ru.practicum.ViewStatsDto;
 import ru.practicum.exception.ValidationException;
 import ru.practicum.mapper.HitMapper;
 import ru.practicum.model.Hit;
@@ -13,7 +13,6 @@ import ru.practicum.repository.StatsRepository;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collection;
 import java.util.List;
 
 import static ru.practicum.mapper.HitMapper.toHitDto;
@@ -36,18 +35,34 @@ public class StatsServiceImpl implements StatsService {
     }
 
     @Override
-    public Collection<StatsDto> getStats(String start, String end, List<String> uris, Boolean unique) {
-        log.info("Getting statistics from: {}, to: {} (URIs: {}, unique {})", start, end, uris, unique);
+    public List<ViewStatsDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
+        if (start.isAfter(end)) {
+            log.warn("Ошибка валидации: дата начала {} позже даты окончания {}", start, end);
+            throw new ValidationException("Дата начала диапазона не может быть позже даты окончания.");
+        }
 
-        LocalDateTime startTime = parseDate(start);
-        LocalDateTime endTime = parseDate(end);
-        if (startTime.isAfter(endTime)) throw new ValidationException("Start date should be before end");
+        boolean isUriFilterActive = uris != null && !uris.isEmpty();
 
-        return unique
-                ? statsRepository.findUniqueStatsByUrisAndTimestampBetween(startTime, endTime, uris)
-                : statsRepository.findStatsByUrisAndTimestampBetween(startTime, endTime, uris);
+        log.info("Запрос статистики: unique={}, uris active={}, uris={}", unique, isUriFilterActive, uris);
+
+        if (unique) {
+            if (isUriFilterActive) {
+                log.debug("Вызов getStatsUniqueIpForUris");
+                return statsRepository.getStatsUniqueIpForUris(start, end, uris);
+            } else {
+                log.debug("Вызов getStatsUniqueIp");
+                return statsRepository.getStatsUniqueIp(start, end);
+            }
+        } else {
+            if (isUriFilterActive) {
+                log.debug("Вызов getStatsAllForUris");
+                return statsRepository.getStatsAllForUris(start, end, uris);
+            } else {
+                log.debug("Вызов getStatsAll");
+                return statsRepository.getStatsAll(start, end);
+            }
+        }
     }
-
 
     private LocalDateTime parseDate(String date) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd' 'HH:mm:ss");

@@ -115,7 +115,7 @@ public class ParticipationRequestImpl implements ParticipationRequestService {
         long participantLimit = event.getParticipantLimit();
 
         List<ParticipationRequest> confirmedRequests = new ArrayList<>();
-        List<ParticipationRequest> rejectedRequests = new ArrayList<>();
+        List<ParticipationRequest> rejectedRequests;
 
         if (requestStatusUpdateDto.getStatus() == RequestStatus.CONFIRMED) {
             long availableSlots = participantLimit - confirmedRequestsCount;
@@ -125,18 +125,22 @@ public class ParticipationRequestImpl implements ParticipationRequestService {
             }
 
             long toConfirm = Math.min(requests.size(), availableSlots);
-            confirmedRequests.addAll(requests.subList(0, (int) toConfirm));
-            rejectedRequests.addAll(requests.subList((int) toConfirm, requests.size()));
 
-            rejectedRequests.forEach(req -> req.setStatus(RequestStatus.REJECTED));
+            confirmedRequests = requests.stream()
+                    .limit(toConfirm)
+                    .peek(req -> req.setStatus(RequestStatus.CONFIRMED))
+                    .toList();
+
+            rejectedRequests = requests.stream()
+                    .skip(toConfirm)
+                    .peek(req -> req.setStatus(RequestStatus.REJECTED))
+                    .toList();
 
         } else if (requestStatusUpdateDto.getStatus() == RequestStatus.REJECTED) {
-            rejectedRequests.addAll(requests);
+            rejectedRequests = new ArrayList<>(requests);
         } else {
             throw new IllegalArgumentException("Unsupported status: " + requestStatusUpdateDto.getStatus());
         }
-
-        confirmedRequests.forEach(req -> req.setStatus(RequestStatus.CONFIRMED));
 
         requestRepository.saveAll(confirmedRequests);
         requestRepository.saveAll(rejectedRequests);

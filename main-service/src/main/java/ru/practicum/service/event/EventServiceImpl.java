@@ -79,7 +79,7 @@ public class EventServiceImpl implements EventService {
             throw new NotFoundException("Пользователь с ID=" + userId + " не найден.");
         }
         Pageable page = PageRequest.of(from / size, size);
-        List<Event> events = (List<Event>) eventRepository.findAllByInitiatorId(userId, page);
+        List<Event> events = eventRepository.findAllByInitiatorId(userId, page);
         return events.stream().map(EventMapper::toEventShortDto).collect(Collectors.toList());
     }
 

@@ -3,6 +3,7 @@ package ru.practicum.controller.privateApi;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.request.ParticipationRequestDto;
 import ru.practicum.service.request.ParticipationRequestService;
@@ -36,11 +37,11 @@ public class ParticipationRequestController {
     }
 
     @PatchMapping("/{requestId}/cancel")
-    public ParticipationRequestDto cancelRequest(
+    public ResponseEntity<ParticipationRequestDto> cancelRequest(
             @PathVariable Long userId,
-            @PathVariable Long requestId
-    ) {
-        log.info("Canceling request for user id {} with request id {}", userId, requestId);
-        return requestService.cancelRequest(userId, requestId);
+            @PathVariable Long requestId) {
+        log.info("Пользователь ID={} отменяет заявку ID={}", userId, requestId);
+        ParticipationRequestDto canceledRequest = requestService.cancelRequest(userId, requestId);
+        return ResponseEntity.ok(canceledRequest);
     }
 }

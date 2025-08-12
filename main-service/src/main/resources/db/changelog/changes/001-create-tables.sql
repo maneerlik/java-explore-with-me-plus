@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS participation_requests
     created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     event_id     BIGINT      NOT NULL,
     requester_id BIGINT      NOT NULL,
-    status       VARCHAR(50) NOT NULL CHECK (status IN ('PENDING', 'CONFIRMED', 'REJECTED')),
+    status       VARCHAR(50) NOT NULL CHECK (status IN ('PENDING', 'CONFIRMED', 'REJECTED', 'CANCELED')),
     FOREIGN KEY (event_id) REFERENCES events (id) ON DELETE CASCADE,
     FOREIGN KEY (requester_id) REFERENCES users (id) ON DELETE CASCADE
 );

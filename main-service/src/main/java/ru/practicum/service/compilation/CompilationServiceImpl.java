@@ -60,16 +60,20 @@ public class CompilationServiceImpl implements CompilationService {
                 .orElseThrow(() -> new NotFoundException("Подборка с ID=" + compId + " не найдена."));
 
         if (updateRequest.getEvents() != null) {
-            compilation.setEvents(new HashSet<>(eventRepository.findAllById(updateRequest.getEvents())));
+            Set<Event> events = eventRepository.findAllByIdIn(updateRequest.getEvents());
+            compilation.setEvents(events);
         }
+
         if (updateRequest.getPinned() != null) {
             compilation.setPinned(updateRequest.getPinned());
         }
-        if (updateRequest.getTitle() != null) {
+
+        if (updateRequest.getTitle() != null && !updateRequest.getTitle().isBlank()) {
             compilation.setTitle(updateRequest.getTitle());
         }
 
-        return CompilationMapper.toCompilationDto(compilationRepository.save(compilation));
+        Compilation updatedCompilation = compilationRepository.save(compilation);
+        return CompilationMapper.toCompilationDto(updatedCompilation);
     }
 
     @Override

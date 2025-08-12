@@ -1,28 +1,24 @@
 package ru.practicum.service.event;
 
-import jakarta.persistence.criteria.*;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.transaction.annotation.Propagation;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.HitDto;
 import ru.practicum.StatsClient;
-import ru.practicum.dto.location.LocationDto;
-import ru.practicum.mapper.LocationMapper;
-import ru.practicum.model.Category;
-import ru.practicum.model.Location;
-import ru.practicum.repository.CategoryRepository;
 import ru.practicum.dto.event.EventDTO.Request.NewEventDto;
 import ru.practicum.dto.event.EventDTO.Request.UpdateEventAdminRequest;
 import ru.practicum.dto.event.EventDTO.Request.UpdateEventUserRequest;
 import ru.practicum.dto.event.EventDTO.Response.EventFullDto;
 import ru.practicum.dto.event.EventDTO.Response.EventShortDto;
+import ru.practicum.dto.location.LocationDto;
 import ru.practicum.enums.EventState;
 import ru.practicum.enums.SortValue;
 import ru.practicum.enums.StateActionAdmin;
@@ -31,8 +27,12 @@ import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.exception.ValidationException;
 import ru.practicum.mapper.EventMapper;
+import ru.practicum.mapper.LocationMapper;
+import ru.practicum.model.Category;
 import ru.practicum.model.Event;
+import ru.practicum.model.Location;
 import ru.practicum.model.User;
+import ru.practicum.repository.CategoryRepository;
 import ru.practicum.repository.EventRepository;
 import ru.practicum.repository.LocationRepository;
 import ru.practicum.repository.UserRepository;
@@ -340,6 +340,7 @@ public class EventServiceImpl implements EventService {
 
         return predicates;
     }
+
     private List<Predicate> buildPublicSearchPredicates(String text, List<Long> categories, Boolean paid,
                                                         LocalDateTime rangeStart, LocalDateTime rangeEnd, Boolean onlyAvailable) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();

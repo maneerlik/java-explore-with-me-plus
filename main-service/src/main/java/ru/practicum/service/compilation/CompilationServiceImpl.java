@@ -4,13 +4,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.dto.compilation.*;
+import ru.practicum.dto.compilation.CompilationDto;
+import ru.practicum.dto.compilation.NewCompilationDto;
+import ru.practicum.dto.compilation.UpdateCompilationRequest;
+import ru.practicum.exception.NotFoundException;
 import ru.practicum.mapper.CompilationMapper;
 import ru.practicum.model.Compilation;
-import ru.practicum.repository.CompilationRepository;
 import ru.practicum.model.Event;
+import ru.practicum.repository.CompilationRepository;
 import ru.practicum.repository.EventRepository;
-import ru.practicum.exception.NotFoundException;
 
 import java.util.HashSet;
 import java.util.List;
@@ -72,7 +74,7 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Override
     public List<CompilationDto> getAllCompilations(Boolean pinned, int from, int size) {
-        PageRequest page =  PageRequest.of(from / size, size);
+        PageRequest page = PageRequest.of(from / size, size);
         List<Compilation> compilations;
         if (pinned != null) {
             compilations = compilationRepository.findAllByPinned(pinned, page).getContent();

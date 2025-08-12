@@ -101,7 +101,7 @@ public class EventServiceImpl implements EventService {
             event.setDescription(dto.getDescription());
         }
         if (dto.getEventDate() != null) {
-            validateEventDate(dto.getEventDate(), 1);
+            validateEventDate(dto.getEventDate(), 2);
             event.setEventDate(dto.getEventDate());
         }
         if (dto.getPaid() != null) {

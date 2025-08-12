@@ -12,26 +12,23 @@ import ru.practicum.model.Hit;
 import ru.practicum.repository.StatsRepository;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-
-import static ru.practicum.mapper.HitMapper.toHitDto;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class StatsServiceImpl implements StatsService {
+
     private final StatsRepository statsRepository;
 
     @Override
     @Transactional
     public HitDto create(HitDto hitDto) {
-        log.info("Creating hit: {}", hitDto);
+        log.info("Сохранение информации о просмотре: {}", hitDto);
         Hit hit = HitMapper.toHit(hitDto);
         Hit savedHit = statsRepository.save(hit);
-        log.info("Created hit: {}", savedHit);
-        return toHitDto(savedHit);
+        return HitMapper.toHitDto(savedHit);
     }
 
     @Override
@@ -41,31 +38,14 @@ public class StatsServiceImpl implements StatsService {
             throw new ValidationException("Дата начала диапазона не может быть позже даты окончания.");
         }
 
-        boolean isUriFilterActive = uris != null && !uris.isEmpty();
-
-        log.info("Запрос статистики: unique={}, uris active={}, uris={}", unique, isUriFilterActive, uris);
+        log.info("Запрос статистики: unique={}, uris={}", unique, uris);
 
         if (unique) {
-            if (isUriFilterActive) {
-                log.debug("Вызов getStatsUniqueIpForUris");
-                return statsRepository.getStatsUniqueIpForUris(start, end, uris);
-            } else {
-                log.debug("Вызов getStatsUniqueIp");
-                return statsRepository.getStatsUniqueIp(start, end);
-            }
+            log.debug("Вызов getStatsUnique");
+            return statsRepository.getStatsUnique(start, end, uris);
         } else {
-            if (isUriFilterActive) {
-                log.debug("Вызов getStatsAllForUris");
-                return statsRepository.getStatsAllForUris(start, end, uris);
-            } else {
-                log.debug("Вызов getStatsAll");
-                return statsRepository.getStatsAll(start, end);
-            }
+            log.debug("Вызов getStatsAll");
+            return statsRepository.getStatsAll(start, end, uris);
         }
-    }
-
-    private LocalDateTime parseDate(String date) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd' 'HH:mm:ss");
-        return LocalDateTime.parse(date, formatter);
     }
 }

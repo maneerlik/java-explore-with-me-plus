@@ -10,6 +10,7 @@ import ru.practicum.model.Location;
 import ru.practicum.model.User;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,37 +19,36 @@ public final class EventMapper {
 
     }
 
-
     public static Event toEvent(NewEventDto dto, Category category, User user, Location location) {
-        Event event = new Event();
-
-        event.setAnnotation(dto.getAnnotation());
-        event.setCategory(category);
-        event.setTitle(dto.getTitle());
-        event.setDescription(dto.getDescription());
-        event.setEventDate(dto.getEventDate());
-        event.setLocation(location);
-        event.setPaid(dto.getPaid());
-
-        event.setParticipantLimit((dto.getParticipantLimit() != null ? dto.getParticipantLimit() : 0));
-        event.setRequestModeration(dto.getRequestModeration() != null ? dto.getRequestModeration() : true);
-
-        event.setConfirmedRequests(0L);
-        event.setInitiator(user);
-        event.setState(EventState.PENDING);
-        event.setCreatedOn(LocalDateTime.now());
-        event.setPublishedOn(null);
-        event.setViews(0L);
-
-        return event;
+        if (dto == null) {
+            return null;
+        }
+        return Event.builder()
+                .annotation(dto.getAnnotation())
+                .category(category)
+                .title(dto.getTitle())
+                .description(dto.getDescription())
+                .eventDate(dto.getEventDate())
+                .location(location)
+                .paid(dto.getPaid())
+                .participantLimit(dto.getParticipantLimit() != null ? dto.getParticipantLimit() : 0)
+                .requestModeration(dto.getRequestModeration() != null ? dto.getRequestModeration() : true)
+                .initiator(user)
+                .state(EventState.PENDING)
+                .createdOn(LocalDateTime.now())
+                .publishedOn(null)
+                .views(0L)
+                .build();
     }
 
     public static EventShortDto toEventShortDto(Event event) {
+        if (event == null) {
+            return null;
+        }
         return new EventShortDto(
                 event.getId(),
                 event.getAnnotation(),
                 CategoryMapper.toCategoryDto(event.getCategory()),
-                event.getConfirmedRequests(),
                 event.getEventDate(),
                 UserMapper.toShortDto(event.getInitiator()),
                 event.getPaid(),
@@ -57,12 +57,15 @@ public final class EventMapper {
         );
     }
 
-    public static EventFullDto toFullEventDto(Event event) {
+    public static EventFullDto toFullEventDto(Event event, long confirmedRequestsCount) {
+        if (event == null) {
+            return null;
+        }
         return new EventFullDto(
                 event.getId(),
                 event.getAnnotation(),
                 CategoryMapper.toCategoryDto(event.getCategory()),
-                event.getConfirmedRequests(),
+                confirmedRequestsCount,
                 event.getCreatedOn(),
                 event.getDescription(),
                 event.getEventDate(),
@@ -78,11 +81,30 @@ public final class EventMapper {
         );
     }
 
+    public static EventFullDto toFullEventDto(Event event) {
+        if (event == null) {
+            return null;
+        }
+
+        return toFullEventDto(event, 0L);
+    }
+
     public static List<EventShortDto> toEventShortDtoList(List<Event> events) {
-        return events.stream().map(EventMapper::toEventShortDto).collect(Collectors.toList());
+        if (events == null || events.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return events.stream()
+                .map(EventMapper::toEventShortDto)
+                .collect(Collectors.toList());
     }
 
     public static List<EventFullDto> toEventFullDtoList(List<Event> events) {
-        return events.stream().map(EventMapper::toFullEventDto).collect(Collectors.toList());
+        if (events == null || events.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return events.stream()
+                .map(EventMapper::toFullEventDto)
+                .collect(Collectors.toList());
     }
 }

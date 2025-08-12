@@ -26,8 +26,16 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public CategoryDto createCategory(NewCategoryDto newCategoryDto) {
+        String categoryName = newCategoryDto.getName();
+
+        if (categoryRepository.existsByName(categoryName)) {
+            throw new ConflictException("Имя категории '" + categoryName + "' уже занято.");
+        }
+
         Category category = CategoryMapper.toCategory(newCategoryDto);
-        return CategoryMapper.toCategoryDto(categoryRepository.save(category));
+        Category savedCategory = categoryRepository.save(category);
+
+        return CategoryMapper.toCategoryDto(savedCategory);
     }
 
     @Override

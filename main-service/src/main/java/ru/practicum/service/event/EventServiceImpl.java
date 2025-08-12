@@ -16,10 +16,7 @@ import ru.practicum.StatsClient;
 import ru.practicum.ViewStatsDto;
 import ru.practicum.dto.event.*;
 import ru.practicum.dto.location.LocationDto;
-import ru.practicum.enums.EventState;
-import ru.practicum.enums.SortValue;
-import ru.practicum.enums.StateActionAdmin;
-import ru.practicum.enums.UserEventStateAction;
+import ru.practicum.enums.*;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.exception.ValidationException;
@@ -29,10 +26,7 @@ import ru.practicum.model.Category;
 import ru.practicum.model.Event;
 import ru.practicum.model.Location;
 import ru.practicum.model.User;
-import ru.practicum.repository.CategoryRepository;
-import ru.practicum.repository.EventRepository;
-import ru.practicum.repository.LocationRepository;
-import ru.practicum.repository.UserRepository;
+import ru.practicum.repository.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -52,6 +46,7 @@ public class EventServiceImpl implements EventService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final LocationRepository locationRepository;
+    private final ParticipationRequestRepository requestRepository;
     private final EntityManager entityManager;
     private final StatsClient statsClient;
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -86,8 +81,9 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventFullDto getEventByUser(Long userId, Long eventId) {
         Event event = findEventByIdAndInitiatorId(eventId, userId);
+        long confirmedRequests = requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
 
-        return EventMapper.toFullEventDto(event);
+        return EventMapper.toFullEventDto(event, confirmedRequests);
     }
 
     private void updateEventFromAdminRequest(Event event, UpdateEventAdminRequest dto) {
@@ -113,8 +109,17 @@ public class EventServiceImpl implements EventService {
                     .orElseThrow(() -> new NotFoundException("Категория с ID=" + dto.getCategory() + " не найдена."));
             event.setCategory(category);
         }
+
         if (dto.getLocation() != null) {
             event.setLocation(getLocation(dto.getLocation()));
+        }
+
+        if (dto.getParticipantLimit() != null) {
+            event.setParticipantLimit(dto.getParticipantLimit());
+        }
+
+        if (dto.getRequestModeration() != null) {
+            event.setRequestModeration(dto.getRequestModeration());
         }
     }
 
@@ -286,7 +291,9 @@ public class EventServiceImpl implements EventService {
 
         sendHitAsync(request.getRequestURI(), request.getRemoteAddr());
 
-        return EventMapper.toFullEventDto(event);
+        long confirmedRequests = requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
+
+        return EventMapper.toFullEventDto(event, confirmedRequests);
     }
 
     @Override

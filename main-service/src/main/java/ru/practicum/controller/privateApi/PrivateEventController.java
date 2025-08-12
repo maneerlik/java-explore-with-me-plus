@@ -14,7 +14,7 @@ import ru.practicum.dto.event.EventDTO.Request.UpdateEventUserRequest;
 import ru.practicum.dto.event.EventDTO.Response.EventFullDto;
 import ru.practicum.dto.event.EventDTO.Response.EventRequestStatusUpdateResult;
 import ru.practicum.dto.event.EventDTO.Response.EventShortDto;
-import ru.practicum.dto.request.ParticipationRequestDTO.Response.ParticipationRequestDto;
+import ru.practicum.dto.request.ParticipationRequestDto;
 import ru.practicum.service.event.EventService;
 import ru.practicum.service.request.ParticipationRequestService;
 

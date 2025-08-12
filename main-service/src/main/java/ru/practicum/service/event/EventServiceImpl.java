@@ -59,7 +59,7 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventFullDto createEvent(NewEventDto newEventDto, Long userId) {
-        validateEventDate(newEventDto.getEventDate(), 2);
+        validateEventDate(newEventDto.getEventDate(), 3);
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с ID=" + userId + " не найден."));
@@ -101,7 +101,7 @@ public class EventServiceImpl implements EventService {
             event.setDescription(dto.getDescription());
         }
         if (dto.getEventDate() != null) {
-            validateEventDate(dto.getEventDate(), 2);
+            validateEventDate(dto.getEventDate(), 1);
             event.setEventDate(dto.getEventDate());
         }
         if (dto.getPaid() != null) {
@@ -129,7 +129,7 @@ public class EventServiceImpl implements EventService {
             event.setDescription(dto.getDescription());
         }
         if (dto.getEventDate() != null) {
-            validateEventDate(dto.getEventDate(), 2);
+            validateEventDate(dto.getEventDate(), 1);
             event.setEventDate(dto.getEventDate());
         }
         if (dto.getPaid() != null) {

@@ -9,6 +9,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.event.EventFullDto;
 import ru.practicum.dto.event.UpdateEventAdminRequest;
+import ru.practicum.dto.event.in.UpdateEventRequest;
 import ru.practicum.enums.EventState;
 import ru.practicum.service.event.EventService;
 
@@ -39,8 +40,9 @@ public class AdminEventController {
     @PatchMapping("/{eventId}")
     public EventFullDto updateEventByAdmin(
             @PathVariable(name = "eventId") Long eventId,
-            @Valid @RequestBody UpdateEventAdminRequest updateEventAdminDto
+            @Valid @RequestBody UpdateEventAdminRequest updateEventAdminRequest
     ) {
-        return eventService.updateEventByAdmin(eventId, updateEventAdminDto);
+        UpdateEventRequest request = UpdateEventRequest.fromAdminRequest(updateEventAdminRequest);
+        return eventService.updateEventByAdmin(eventId, request);
     }
 }

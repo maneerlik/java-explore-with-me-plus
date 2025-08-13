@@ -1,8 +1,7 @@
 package ru.practicum.mapper;
 
-import ru.practicum.dto.event.EventFullDto;
-import ru.practicum.dto.event.EventShortDto;
-import ru.practicum.dto.event.NewEventDto;
+import ru.practicum.dto.event.*;
+import ru.practicum.dto.event.in.UpdateEventRequest;
 import ru.practicum.enums.EventState;
 import ru.practicum.model.Category;
 import ru.practicum.model.Event;
@@ -57,7 +56,7 @@ public final class EventMapper {
         );
     }
 
-    public static EventFullDto toFullEventDto(Event event) {
+    public static EventFullDto toEventFullDto(Event event) {
         return new EventFullDto(
                 event.getId(),
                 event.getAnnotation(),
@@ -83,6 +82,6 @@ public final class EventMapper {
     }
 
     public static List<EventFullDto> toEventFullDtoList(List<Event> events) {
-        return events.stream().map(EventMapper::toFullEventDto).collect(Collectors.toList());
+        return events.stream().map(EventMapper::toEventFullDto).collect(Collectors.toList());
     }
 }

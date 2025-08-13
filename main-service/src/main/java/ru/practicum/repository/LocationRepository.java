@@ -6,6 +6,5 @@ import ru.practicum.model.Location;
 import java.util.Optional;
 
 public interface LocationRepository extends JpaRepository<Location, Long> {
-
     Optional<Location> findByLatAndLon(Float lat, Float lon);
 }

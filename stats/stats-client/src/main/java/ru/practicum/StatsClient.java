@@ -2,65 +2,72 @@ package ru.practicum;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
-import org.springframework.http.HttpStatusCode;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-@Service
 @Slf4j
+@Service
 @AllArgsConstructor
 public class StatsClient {
     private final RestClient restClient;
-    private final String url;
+
 
     @Autowired
     public StatsClient(@Value("${stats-server.url}") String serverUrl) {
-        log.info("url: " + serverUrl);
-        restClient = RestClient.builder()
+        log.info("Initializing StatsClient with URL: {}", serverUrl);
+        this.restClient = RestClient.builder()
                 .baseUrl(serverUrl)
                 .build();
-        url = serverUrl;
     }
 
-    public ResponseEntity<Object> saveHit(HitDto hitDto) {
+    public HitDto saveHit(HitDto hitDto) {
         return restClient.post()
-                .uri(uriBuilder -> uriBuilder.path("/hit").build())
+                .uri("/hit")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(hitDto)
                 .retrieve()
-                .onStatus(HttpStatusCode::isError, (req, res) -> {
-                    throw new RuntimeException("StatsService error: " + res.getStatusText());
+                .onStatus(HttpStatusCode::isError, (request, response) -> {
+                    log.error("Error saving hit to StatsService: {} {}",
+                            response.getStatusCode(),
+                            response.getStatusText()
+                    );
+                    throw new RuntimeException("StatsService error while saving hit: " + response.getStatusText());
                 })
-                .toEntity(Object.class);
+                .body(HitDto.class);
     }
 
-    public ResponseEntity<Object> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
+    public List<StatsDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
         String formattedStart = start.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         String formattedEnd = end.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
         return restClient.get()
                 .uri(uriBuilder -> {
-                    log.info("url before /stats: " + url);
                     uriBuilder.path("/stats")
                             .queryParam("start", formattedStart)
                             .queryParam("end", formattedEnd);
 
-                    if (uris != null && !uris.isEmpty()) {
-                        uriBuilder.queryParam("uris", String.join(",", uris));
-                    }
+                    if (uris != null && !uris.isEmpty()) uris.forEach(uri -> uriBuilder.queryParam("uris", uri));
+                    if (unique != null) uriBuilder.queryParam("unique", unique);
 
-                    return uriBuilder.queryParam("unique", unique).build();
+                    return uriBuilder.build();
                 })
                 .retrieve()
-                .toEntity(Object.class);
+                .onStatus(HttpStatusCode::isError, (request, response) -> {
+                    log.error("Error fetching stats from StatsService: {} {}",
+                            response.getStatusCode(),
+                            response.getStatusText()
+                    );
+                    throw new RuntimeException("StatsService error while getting stats: " + response.getStatusText());
+                })
+                .body(new ParameterizedTypeReference<>() {});
     }
-
 }

@@ -5,37 +5,36 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Controller
-@RequiredArgsConstructor
 @Slf4j
+@Validated
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/stats")
 public class StatsController {
     private final StatsClient statsClient;
 
+
     @PostMapping("/hit")
-    public ResponseEntity<Object> saveHit(@RequestBody @Valid HitDto hitDto) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public HitDto saveHit(@Valid @RequestBody HitDto hitDto) {
         return statsClient.saveHit(hitDto);
     }
 
-    @GetMapping("/stats")
-    public ResponseEntity<Object> getStats(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @NotNull LocalDateTime start,
-                                           @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @NotNull LocalDateTime end,
-                                           @RequestParam(required = false) List<String> uris,
-                                           @RequestParam(defaultValue = "false") Boolean unique) {
-        if (start.isAfter(end)) {
-            throw new IllegalStateException("Client error: Invalid date range");
-        }
-
+    @GetMapping
+    public List<StatsDto> getStats(
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @NotNull LocalDateTime start,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @NotNull LocalDateTime end,
+            @RequestParam(required = false) List<String> uris,
+            @RequestParam(defaultValue = "false") boolean unique
+    ) {
+        if (start.isAfter(end)) throw new IllegalStateException("Start date cannot be after end date");
         return statsClient.getStats(start, end, uris, unique);
     }
-
 }

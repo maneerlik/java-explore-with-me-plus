@@ -25,7 +25,8 @@ public class PublicCompilationController {
     public ResponseEntity<List<CompilationDto>> getAllCompilations(
             @RequestParam(required = false) Boolean pinned,
             @RequestParam(defaultValue = "0") @PositiveOrZero int from,
-            @RequestParam(defaultValue = "10") @Positive int size) {
+            @RequestParam(defaultValue = "10") @Positive int size
+    ) {
         log.info("PUBLIC: get compilations");
         return ResponseEntity.ok(compilationService.getAllCompilations(pinned, from, size));
     }

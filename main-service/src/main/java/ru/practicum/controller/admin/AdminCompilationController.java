@@ -33,8 +33,10 @@ public class AdminCompilationController {
     }
 
     @PatchMapping("/admin/compilations/{compId}")
-    public ResponseEntity<CompilationDto> updateCompilation(@PathVariable Long compId,
-                                                            @Valid @RequestBody UpdateCompilationRequest updateRequest) {
+    public ResponseEntity<CompilationDto> updateCompilation(
+            @PathVariable Long compId,
+            @Valid @RequestBody UpdateCompilationRequest updateRequest
+    ) {
         log.info("ADMIN: update compilation", compId, updateRequest);
         CompilationDto updated = compilationService.updateCompilation(compId, updateRequest);
         return ResponseEntity.ok(updated);

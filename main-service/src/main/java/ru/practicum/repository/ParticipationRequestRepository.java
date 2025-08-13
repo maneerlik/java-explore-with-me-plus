@@ -34,7 +34,7 @@ public interface ParticipationRequestRepository extends JpaRepository<Participat
 
     List<ParticipationRequest> findAllByIdIn(List<Long> requestIds);
 
-    @Query("SELECT r.event.id, COUNT(r.id) FROM Request r WHERE r.event.id IN :eventIds AND r.status = 'CONFIRMED' GROUP BY r.event.id")
+    @Query("SELECT r.event.id, COUNT(r.id) FROM ParticipationRequest r WHERE r.event.id IN :eventIds AND r.status = 'CONFIRMED' GROUP BY r.event.id")
     List<Object[]> countConfirmedRequestsForEventsRaw(@Param("eventIds") Set<Long> eventIds);
 
     default Map<Long, Long> countConfirmedRequestsForEvents(Set<Long> eventIds) {

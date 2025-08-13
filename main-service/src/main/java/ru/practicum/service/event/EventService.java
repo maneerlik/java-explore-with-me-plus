@@ -1,29 +1,42 @@
 package ru.practicum.service.event;
 
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.event.*;
 import ru.practicum.enums.EventState;
 import ru.practicum.enums.SortValue;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface EventService {
-    FullEventDto createEvent(NewEventDto event, Long userId);
 
-    FullEventDto updateEventByUser(Long userId, Long eventId, UpdateEventUserDto event);
+    @Transactional
+    EventFullDto createEvent(NewEventDto newEventDto, Long userId);
 
-    FullEventDto updateEventByAdmin(Long eventId, UpdateEventAdminDto event);
+    List<EventShortDto> getEvents(Long userId, Integer from, Integer size);
 
-    FullEventDto getEvent(Long eventId);
+    EventFullDto getEventByUser(Long userId, Long eventId);
 
-    FullEventDto getEventByUser(Long userId, Long eventId);
+    @Transactional
+    EventFullDto updateEventByUser(Long userId, Long eventId, UpdateEventUserRequest updateRequest);
 
-    List<EventDto> getEvents(Long userId, Integer from, Integer size);
+    @Transactional
+    EventFullDto updateEventByAdmin(Long eventId, UpdateEventAdminRequest updateRequest);
 
-    List<EventDto> getEventsByAdmin(List<Long> users, EventState states, List<Long> categoriesId,
-                                              String rangeStart, String rangeEnd, Integer from, Integer size);
+    List<EventShortDto> getEventsByUser(String text, List<Long> categories, Boolean paid,
+                                        LocalDateTime rangeStart, LocalDateTime rangeEnd,
+                                        Boolean onlyAvailable, SortValue sort,
+                                        Integer from, Integer size, HttpServletRequest request);
 
-    List<EventDto> getEventsByUser(String text, List<Long> categories, Boolean paid, String rangeStart,
-                                             String rangeEnd, Boolean onlyAvailable, SortValue sort,
-                                             Integer from, Integer size);
+    @Transactional
+    EventFullDto getEvent(Long eventId, HttpServletRequest request);
 
+    List<EventFullDto> getEventsByAdmin(List<Long> users, List<EventState> states, List<Long> categories,
+                                        LocalDateTime rangeStart, LocalDateTime rangeEnd, Integer from, Integer size);
+
+    List<EventShortDto> searchPublicEvents(String text, List<Long> categories, Boolean paid,
+                                           LocalDateTime rangeStart, LocalDateTime rangeEnd,
+                                           Boolean onlyAvailable, SortValue sort,
+                                           Integer from, Integer size, HttpServletRequest request);
 }

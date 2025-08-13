@@ -6,98 +6,87 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.dto.user.UserDTO.Request.NewUserRequest;
-import ru.practicum.dto.user.UserDTO.Response.UserDto;
-import ru.practicum.dto.user.in.GetUsersRequest;
+import ru.practicum.dto.user.NewUserRequest;
+import ru.practicum.dto.user.UserDto;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.mapper.UserMapper;
 import ru.practicum.model.User;
 import ru.practicum.repository.UserRepository;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
+
     private final UserRepository userRepository;
 
-
+    @Override
     @Transactional
     public UserDto createUser(NewUserRequest newUserRequest) {
-        log.info("Creating user {}", newUserRequest);
+        log.info("Создание пользователя: {}", newUserRequest);
 
-        boolean emailExists = userRepository.existsByEmail(newUserRequest.getEmail());
-        if (emailExists) {
-            log.warn("User creation rejected: email '{}' is already exist", newUserRequest.getEmail());
-            throw new ConflictException(String.format("Email exists: %s", newUserRequest.getEmail()));
+        if (userRepository.existsByEmail(newUserRequest.getEmail())) {
+            log.warn("Не удалось создать пользователя: email '{}' уже занят", newUserRequest.getEmail());
+            throw new ConflictException("Email '" + newUserRequest.getEmail() + "' уже существует.");
         }
 
-        User user = User.builder()
-                .name(newUserRequest.getName())
-                .email(newUserRequest.getEmail())
-                .build();
+        User user = UserMapper.toUser(newUserRequest);
         User savedUser = userRepository.save(user);
 
-        log.info("User created with id={}", savedUser.getId());
-
-        return UserMapper.toFullDto(savedUser);
+        log.info("Пользователь с ID={} успешно создан", savedUser.getId());
+        return UserMapper.toUserDto(savedUser);
     }
 
-    public Collection<UserDto> getUsers(GetUsersRequest request) {
-        List<Long> ids = Optional.ofNullable(request.ids()).stream()
-                .flatMap(Collection::stream)
-                .toList();
-
-        int from = request.from();
-        int size = request.size();
-
-        log.info("Getting users by ids={}, from={}, size={}", ids.isEmpty() ? "all" : ids, from, size);
-
+    @Override
+    public List<UserDto> getUsers(List<Long> ids, Integer from, Integer size) {
         Pageable pageable = PageRequest.of(from / size, size);
+        List<User> users;
 
-        List<User> users = userRepository.findUsersByIds(ids, pageable);
-        log.debug("Found {} users", users.size());
+        if (ids == null || ids.isEmpty()) {
+            log.info("Получение списка всех пользователей. Страница: {}, размер: {}", from / size, size);
+            users = userRepository.findAll(pageable).getContent();
+        } else {
+            log.info("Получение списка пользователей по IDs: {}. Страница: {}, размер: {}", ids, from / size, size);
+            users = userRepository.findAllByIdIn(ids, pageable);
+        }
 
+        log.debug("Найдено {} пользователей", users.size());
         return users.stream()
-                .map(UserMapper::toFullDto)
-                .toList();
+                .map(UserMapper::toUserDto)
+                .collect(Collectors.toList());
     }
 
+    @Override
     public UserDto getUser(Long userId) {
-        checkExistUser(userId);
-        return UserMapper.toUserDto(userRepository.findById(userId).get());
+        User user = getUserEntity(userId);
+        return UserMapper.toUserDto(user);
     }
 
+    @Override
     public User getUserEntity(Long userId) {
-        checkExistUser(userId);
-        return userRepository.findById(userId).get();
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с ID=" + userId + " не найден."));
     }
 
+    @Override
     @Transactional
     public void deleteUser(Long userId) {
-        log.info("Delete user with id={}", userId);
-        checkExistUser(userId);
+        log.info("Удаление пользователя с ID={}", userId);
+        if (!userRepository.existsById(userId)) {
+            throw new NotFoundException("Пользователь с ID=" + userId + " не найден. Удаление невозможно.");
+        }
 
         try {
             userRepository.deleteById(userId);
-            log.info("User with id={} deleted", userId);
+            log.info("Пользователь с ID={} успешно удален", userId);
         } catch (Exception e) {
-            log.error("Failed to delete user with id={}. Possible database error", userId, e);
-            throw new ConflictException("Could not delete user");
-        }
-    }
-
-    private void checkExistUser(Long userId) {
-        boolean userExists = userRepository.existsById(userId);
-
-        if (!userExists) {
-            log.warn("User with id={} not found", userId);
-            throw new NotFoundException(String.format("User with id: %s not found", userId));
+            log.error("Ошибка при удалении пользователя ID={}. Возможно, существуют связанные с ним данные.", userId, e);
+            throw new ConflictException("Не удалось удалить пользователя. Возможно, с ним связаны другие записи.");
         }
     }
 }

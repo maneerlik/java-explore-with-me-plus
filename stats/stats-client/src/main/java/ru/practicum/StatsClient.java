@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -42,25 +43,26 @@ public class StatsClient {
                 .toEntity(Object.class);
     }
 
-    public ResponseEntity<Object> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
+    public List<ViewStatsDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
         String formattedStart = start.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         String formattedEnd = end.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
-        return restClient.get()
+        ResponseEntity<List<ViewStatsDto>> response = restClient.get()
                 .uri(uriBuilder -> {
-                    log.info("url before /stats: " + url);
                     uriBuilder.path("/stats")
                             .queryParam("start", formattedStart)
-                            .queryParam("end", formattedEnd);
+                            .queryParam("end", formattedEnd)
+                            .queryParam("unique", unique);
 
                     if (uris != null && !uris.isEmpty()) {
                         uriBuilder.queryParam("uris", String.join(",", uris));
                     }
 
-                    return uriBuilder.queryParam("unique", unique).build();
+                    return uriBuilder.build();
                 })
                 .retrieve()
-                .toEntity(Object.class);
-    }
+                .toEntity(new ParameterizedTypeReference<List<ViewStatsDto>>() {});
 
+        return response.getBody();
+    }
 }

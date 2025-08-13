@@ -1,20 +1,24 @@
 package ru.practicum.service.request;
 
-import ru.practicum.dto.request.ParticipationRequestDTO.Response.ParticipationRequestDto;
-import ru.practicum.dto.request.RequestStatusUpdateDto;
-import ru.practicum.dto.request.RequestStatusUpdateResult;
+import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.dto.request.EventRequestStatusUpdateRequest;
+import ru.practicum.dto.request.EventRequestStatusUpdateResult;
+import ru.practicum.dto.request.ParticipationRequestDto;
 
-import java.util.Collection;
 import java.util.List;
 
 public interface ParticipationRequestService {
+
+    @Transactional
     ParticipationRequestDto createRequest(Long userId, Long eventId);
 
-    RequestStatusUpdateResult updateRequests(Long userId, Long eventId, RequestStatusUpdateDto requestStatusUpdateDto);
+    @Transactional
+    EventRequestStatusUpdateResult updateRequests(Long userId, Long eventId, EventRequestStatusUpdateRequest statusUpdateRequest);
 
-    Collection<ParticipationRequestDto> getUserRequests(Long userId);
+    List<ParticipationRequestDto> getUserRequests(Long userId);
 
     List<ParticipationRequestDto> getRequestsByOwner(Long userId, Long eventId);
 
-    ParticipationRequestDto cancelRequest(Long userId, Long eventId);
+    @Transactional
+    ParticipationRequestDto cancelRequest(Long userId, Long requestId);
 }

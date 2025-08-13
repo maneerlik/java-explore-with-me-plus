@@ -1,53 +1,47 @@
 package ru.practicum.dto.event;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.practicum.model.Location;
+import ru.practicum.dto.location.LocationDto;
 
 import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class NewEventDto {
-    @NotNull
-    @NotBlank
+    @NotBlank(message = "Аннотация не может быть пустой.")
     @Size(min = 20, max = 2000)
     private String annotation;
 
     @NotNull
-    @Size(min = 3, max = 120)
-    private String title;
+    private Long category;
 
-    @NotNull
-    @NotBlank(message = "Описание не может быть пустым")
+    @NotBlank(message = "Описание не может быть пустым.")
     @Size(min = 20, max = 7000)
     private String description;
 
     @NotNull
+    @Future
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime eventDate;
 
     @NotNull
-    private Location location;
-    private Boolean paid;
+    @Valid
+    private LocationDto location;
 
-    @Positive
-    private Long participantLimit;
-    private Boolean requestModeration;
-    private LocalDateTime createdOn;
-    private LocalDateTime publishedOn;
+    private Boolean paid = false;
 
-    @NotNull
-    @JsonProperty("category")
-    private Long categoryId;
+    @PositiveOrZero(message = "Лимит участников не может быть отрицательным.")
+    private Long participantLimit = 0L;
+
+    private Boolean requestModeration = true;
+
+    @NotBlank(message = "Заголовок не может быть пустым.")
+    @Size(min = 3, max = 120)
+    private String title;
 }

@@ -3,6 +3,7 @@ package ru.practicum.exception.handler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.exception.ErrorResponse;
 import ru.practicum.exception.ValidationException;
@@ -13,16 +14,18 @@ import java.io.StringWriter;
 @RestControllerAdvice
 @Slf4j
 public class ErrorHandler {
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler
     public ErrorResponse handleException(final Exception e) {
         logError(e);
-        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+        HttpStatus status = HttpStatus.BAD_REQUEST;
         return ErrorResponse.builder(status.value(), status.getReasonPhrase())
                         .message(e.getMessage())
                         .stackTrace(getStackTrace(e))
                         .build();
     }
 
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler
     public ErrorResponse validationHandler(final ValidationException e) {
         logError(e);

@@ -1,5 +1,6 @@
-package ru.practicum.dto.category;
+package ru.practicum.dto.user;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -9,10 +10,13 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CategoryDto {
+public class UserDto {
     private Long id;
-
-    @NotBlank(message = "Name cannot be empty")
-    @Size(min = 1, max = 50, message = "Name must be from {min} to {max} characters")
+    @Email
+    @NotBlank
+    @Size(min = 6, max = 254)
+    private String email;
+    @NotBlank
+    @Size(min = 2, max = 250)
     private String name;
 }

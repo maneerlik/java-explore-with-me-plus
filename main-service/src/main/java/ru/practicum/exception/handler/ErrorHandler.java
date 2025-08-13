@@ -32,6 +32,15 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
+    public ResponseEntity<ApiError> handleValidationException(final ValidationException e) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        ApiError error = ApiError.builder(status, "validation error")
+                .message(e.getMessage())
+                .build();
+        return buildResponseEntity(error, status);
+    }
+
+    @ExceptionHandler
     public ResponseEntity<ApiError> conflictHandler(final ConflictException e) {
         log.warn("Conflict: {}", e.getMessage());
         HttpStatus status = HttpStatus.CONFLICT;

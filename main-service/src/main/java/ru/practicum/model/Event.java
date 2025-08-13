@@ -3,6 +3,7 @@ package ru.practicum.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.practicum.enums.EventState;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Builder
 @Table(name = "events")
 public class Event {
     @Id
@@ -27,9 +29,6 @@ public class Event {
 
     @Column(name = "description")
     private String description;
-
-    @Column(name = "confirmed_requests")
-    private Long confirmedRequests;
 
     @Column(name = "created_on")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
@@ -70,4 +69,7 @@ public class Event {
 
     @Column(name = "views")
     private Long views;
+
+    @Column(name = "confirmed_requests")
+    private Long confirmedRequests;
 }

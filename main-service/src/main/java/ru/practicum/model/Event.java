@@ -69,4 +69,7 @@ public class Event {
 
     @Column(name = "views")
     private Long views;
+
+    @Column(name = "confirmed_requests")
+    private Long ConfirmedRequests;
 }

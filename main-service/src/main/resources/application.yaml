@@ -24,10 +24,6 @@ spring:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master.yaml
 
-  jackson:
-    date-format: yyyy-MM-dd'T'HH:mm:ss
-    time-zone: UTC
-
 server:
   port: 8080
 
@@ -41,3 +37,6 @@ logging:
     org.hibernate.type: TRACE
     org.hibernate.orm.jdbc.bind: TRACE
     liquibase: DEBUG
+
+stats-server:
+  url: http://stats-server:9090

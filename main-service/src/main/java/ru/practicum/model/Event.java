@@ -71,5 +71,5 @@ public class Event {
     private Long views;
 
     @Column(name = "confirmed_requests")
-    private Long ConfirmedRequests;
+    private Long confirmedRequests;
 }

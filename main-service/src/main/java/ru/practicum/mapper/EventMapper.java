@@ -107,8 +107,7 @@ public final class EventMapper {
         if (event == null) {
             return null;
         }
-
-        return toFullEventDto(event, 0L);
+        return toFullEventDto(event, event.getConfirmedRequests() != null ? event.getConfirmedRequests() : 0L);
     }
 
     public static List<EventFullDto> toEventFullDtoList(List<Event> events) {

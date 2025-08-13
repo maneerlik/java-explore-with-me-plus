@@ -1,10 +1,12 @@
 package ru.practicum.dto.event;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import ru.practicum.dto.location.LocationDto;
 import ru.practicum.enums.StateActionAdmin;
 
@@ -29,6 +31,8 @@ public class UpdateEventAdminRequest {
 
     @NotNull(message = "Event date cannot be null")
     @FutureOrPresent(message = "Event date must be in the future or present")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime eventDate;
 
     @NotNull(message = "Location cannot be null")

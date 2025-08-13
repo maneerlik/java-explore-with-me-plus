@@ -27,6 +27,9 @@ spring:
 server:
   port: 8080
 
+stats-server:
+  url: http://stats-server:9090
+
 logging:
   level:
     org.springframework.orm.jpa: INFO
@@ -37,6 +40,3 @@ logging:
     org.hibernate.type: TRACE
     org.hibernate.orm.jdbc.bind: TRACE
     liquibase: DEBUG
-
-stats-server:
-  url: http://stats-server:9090

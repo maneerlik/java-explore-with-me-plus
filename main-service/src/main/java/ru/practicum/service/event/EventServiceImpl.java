@@ -32,8 +32,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -78,13 +76,7 @@ public class EventServiceImpl implements EventService {
         Pageable page = PageRequest.of(from / size, size);
         List<Event> events = eventRepository.findAllByInitiatorId(userId, page);
 
-        Set<Long> eventIds = events.stream()
-                .map(Event::getId)
-                .collect(Collectors.toSet());
-
-        Map<Long, Long> confirmedRequestsCounts = requestRepository.countConfirmedRequestsForEvents(eventIds);
-
-        return EventMapper.toEventShortDtoList(events, confirmedRequestsCounts);
+        return EventMapper.toEventShortDtoList(events);
     }
 
     @Override
@@ -221,20 +213,22 @@ public class EventServiceImpl implements EventService {
                                                LocalDateTime rangeStart, LocalDateTime rangeEnd,
                                                Boolean onlyAvailable, SortValue sort,
                                                Integer from, Integer size, HttpServletRequest request) {
+
         if (rangeStart != null && rangeEnd != null && rangeStart.isAfter(rangeEnd)) {
             throw new ValidationException("Дата начала не может быть позже даты окончания.");
         }
+
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Event> query = cb.createQuery(Event.class);
-
         Root<Event> eventRoot = query.from(Event.class);
 
         List<Predicate> predicates = new ArrayList<>();
 
         if (text != null && !text.isBlank()) {
-            Predicate annotationLike = cb.like(cb.lower(eventRoot.get("annotation")), "%" + text.toLowerCase() + "%");
-            Predicate descriptionLike = cb.like(cb.lower(eventRoot.get("description")), "%" + text.toLowerCase() + "%");
-            predicates.add(cb.or(annotationLike, descriptionLike));
+            predicates.add(cb.or(
+                    cb.like(cb.lower(eventRoot.get("annotation")), "%" + text.toLowerCase() + "%"),
+                    cb.like(cb.lower(eventRoot.get("description")), "%" + text.toLowerCase() + "%")
+            ));
         }
 
         if (categories != null && !categories.isEmpty()) {
@@ -245,19 +239,19 @@ public class EventServiceImpl implements EventService {
             predicates.add(cb.equal(eventRoot.get("paid"), paid));
         }
 
-        LocalDateTime start = (rangeStart != null) ? rangeStart : LocalDateTime.now();
-        predicates.add(cb.greaterThan(eventRoot.get("eventDate"), start));
+        LocalDateTime startDateTime = (rangeStart != null) ? rangeStart : LocalDateTime.now();
+        predicates.add(cb.greaterThan(eventRoot.get("eventDate"), startDateTime));
         if (rangeEnd != null) {
             predicates.add(cb.lessThan(eventRoot.get("eventDate"), rangeEnd));
         }
 
         predicates.add(cb.equal(eventRoot.get("state"), EventState.PUBLISHED));
 
-        query.where(cb.and(predicates.toArray(new Predicate[0])));
+        query.where(predicates.toArray(new Predicate[0]));
 
         if (sort == SortValue.VIEWS) {
             query.orderBy(cb.desc(eventRoot.get("views")));
-        } else if (sort == SortValue.EVENT_DATE) {
+        } else {
             query.orderBy(cb.desc(eventRoot.get("eventDate")));
         }
 
@@ -268,13 +262,7 @@ public class EventServiceImpl implements EventService {
 
         sendHitAsync(request.getRequestURI(), request.getRemoteAddr());
 
-        Set<Long> eventIds = events.stream()
-                .map(Event::getId)
-                .collect(Collectors.toSet());
-
-        Map<Long, Long> confirmedRequestsCounts = requestRepository.countConfirmedRequestsForEvents(eventIds);
-
-        List<EventShortDto> shortDtos = EventMapper.toEventShortDtoList(events, confirmedRequestsCounts);
+        List<EventShortDto> shortDtos = EventMapper.toEventShortDtoList(events);
 
         if (onlyAvailable != null && onlyAvailable) {
             return shortDtos.stream()
@@ -409,13 +397,7 @@ public class EventServiceImpl implements EventService {
 
         sendHitAsync(request.getRequestURI(), request.getRemoteAddr());
 
-        Set<Long> eventIds = events.stream()
-                .map(Event::getId)
-                .collect(Collectors.toSet());
-
-        Map<Long, Long> confirmedRequestsCounts = requestRepository.countConfirmedRequestsForEvents(eventIds);
-
-        List<EventShortDto> shortDtos = EventMapper.toEventShortDtoList(events, confirmedRequestsCounts);
+        List<EventShortDto> shortDtos = EventMapper.toEventShortDtoList(events);
 
         if (onlyAvailable != null && onlyAvailable) {
             return shortDtos.stream()

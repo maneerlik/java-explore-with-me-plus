@@ -12,7 +12,6 @@ import ru.practicum.model.User;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -40,10 +39,11 @@ public final class EventMapper {
                 .createdOn(LocalDateTime.now())
                 .publishedOn(null)
                 .views(0L)
+                .confirmedRequests(0L)
                 .build();
     }
 
-    public static EventShortDto toEventShortDto(Event event, Long confirmedRequestsCount) {
+    public static EventShortDto toEventShortDto(Event event) {
         if (event == null) {
             return null;
         }
@@ -56,26 +56,26 @@ public final class EventMapper {
                 event.getPaid(),
                 event.getTitle(),
                 event.getViews(),
-                confirmedRequestsCount,
+                event.getConfirmedRequests(),
                 event.getParticipantLimit()
         );
     }
 
-    public static Set<EventShortDto> toEventShortDtoSet(Set<Event> events, Map<Long, Long> confirmedRequestsCounts) {
+    public static Set<EventShortDto> toEventShortDtoSet(Set<Event> events) {
         if (events == null || events.isEmpty()) {
             return Collections.emptySet();
         }
         return events.stream()
-                .map(event -> toEventShortDto(event, confirmedRequestsCounts.getOrDefault(event.getId(), 0L)))
+                .map(EventMapper::toEventShortDto)
                 .collect(Collectors.toSet());
     }
 
-    public static List<EventShortDto> toEventShortDtoList(List<Event> events, Map<Long, Long> confirmedRequestsCounts) {
+    public static List<EventShortDto> toEventShortDtoList(List<Event> events) {
         if (events == null || events.isEmpty()) {
             return Collections.emptyList();
         }
         return events.stream()
-                .map(event -> toEventShortDto(event, confirmedRequestsCounts.getOrDefault(event.getId(), 0L)))
+                .map(EventMapper::toEventShortDto)
                 .collect(Collectors.toList());
     }
 
@@ -109,15 +109,6 @@ public final class EventMapper {
         }
 
         return toFullEventDto(event, 0L);
-    }
-
-    public static List<EventShortDto> toEventShortDtoList(List<Event> events) {
-        if (events == null || events.isEmpty()) {
-            return Collections.emptyList();
-        }
-        return events.stream()
-                .map(event -> toEventShortDto(event, 0L))
-                .collect(Collectors.toList());
     }
 
     public static List<EventFullDto> toEventFullDtoList(List<Event> events) {

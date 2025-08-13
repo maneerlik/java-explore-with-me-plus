@@ -17,7 +17,7 @@ public class CompilationMapper {
         Set<EventShortDto> eventShortDtos = Collections.emptySet();
         if (compilation.getEvents() != null && !compilation.getEvents().isEmpty()) {
             eventShortDtos = compilation.getEvents().stream()
-                    .map(event -> EventMapper.toEventShortDto(event, confirmedRequestsCounts.getOrDefault(event.getId(), 0L)))
+                    .map(event -> EventMapper.toEventShortDto(event))
                     .collect(Collectors.toSet());
         }
 

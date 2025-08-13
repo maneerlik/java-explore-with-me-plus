@@ -1,0 +1,46 @@
+package ru.practicum.dto.event;
+
+import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import ru.practicum.dto.location.LocationDto;
+import ru.practicum.enums.StateActionAdmin;
+
+import java.time.LocalDateTime;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class UpdateEventAdminRequest {
+    @NotBlank(message = "Annotation cannot be empty")
+    @Size(min = 20, max = 2000, message = "Annotation must be from {min} to {max} characters")
+    private String annotation;
+
+    @NotNull(message = "Category Id cannot be null")
+    @Positive(message = "Category Id must be positive")
+    private Long category;
+
+    @NotBlank(message = "Description cannot be empty")
+    @Size(min = 20, max = 7000, message = "Description must be from {min} to {max} characters")
+    private String description;
+
+    @NotNull(message = "Event date cannot be null")
+    @FutureOrPresent(message = "Event date must be in the future or present")
+    private LocalDateTime eventDate;
+
+    @NotNull(message = "Location cannot be null")
+    private LocationDto location;
+
+    @NotNull(message = "Paid flag cannot be null")
+    private Boolean paid;
+    private Integer participantLimit;
+    private Boolean requestModeration;
+    private StateActionAdmin stateAction;
+
+    @NotBlank(message = "Title cannot be empty")
+    @Size(min = 3, max = 120, message = "Title must be from {min} to {max} characters")
+    private String title;
+}

@@ -7,8 +7,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.dto.event.EventDTO.Request.UpdateEventAdminRequest;
-import ru.practicum.dto.event.EventDTO.Response.EventFullDto;
+import ru.practicum.dto.event.EventFullDto;
+import ru.practicum.dto.event.UpdateEventAdminRequest;
 import ru.practicum.enums.EventState;
 import ru.practicum.service.event.EventService;
 

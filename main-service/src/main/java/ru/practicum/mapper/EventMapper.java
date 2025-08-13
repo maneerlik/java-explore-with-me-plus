@@ -1,8 +1,8 @@
 package ru.practicum.mapper;
 
-import ru.practicum.dto.event.EventDTO.Request.NewEventDto;
-import ru.practicum.dto.event.EventDTO.Response.EventFullDto;
-import ru.practicum.dto.event.EventDTO.Response.EventShortDto;
+import ru.practicum.dto.event.EventFullDto;
+import ru.practicum.dto.event.EventShortDto;
+import ru.practicum.dto.event.NewEventDto;
 import ru.practicum.enums.EventState;
 import ru.practicum.model.Category;
 import ru.practicum.model.Event;
@@ -30,7 +30,7 @@ public final class EventMapper {
         event.setLocation(location);
         event.setPaid(dto.getPaid());
 
-        event.setParticipantLimit(dto.getParticipantLimit() != null ? dto.getParticipantLimit() : 0);
+        event.setParticipantLimit(dto.getParticipantLimit() != null ? dto.getParticipantLimit() : 0L);
         event.setRequestModeration(dto.getRequestModeration() != null ? dto.getRequestModeration() : true);
 
         event.setConfirmedRequests(0L);

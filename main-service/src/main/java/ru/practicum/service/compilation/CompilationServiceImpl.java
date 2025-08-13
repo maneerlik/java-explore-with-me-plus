@@ -13,9 +13,12 @@ import ru.practicum.model.Compilation;
 import ru.practicum.model.Event;
 import ru.practicum.repository.CompilationRepository;
 import ru.practicum.repository.EventRepository;
+import ru.practicum.repository.ParticipationRequestRepository;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -26,6 +29,7 @@ public class CompilationServiceImpl implements CompilationService {
 
     private final CompilationRepository compilationRepository;
     private final EventRepository eventRepository;
+    private final ParticipationRequestRepository requestRepository;
 
     @Override
     @Transactional
@@ -41,7 +45,13 @@ public class CompilationServiceImpl implements CompilationService {
 
         Compilation compilation = new Compilation(null, events, newDto.getPinned(), newDto.getTitle());
         Compilation saved = compilationRepository.save(compilation);
-        return CompilationMapper.toCompilationDto(saved);
+
+        Set<Long> savedEventIds = saved.getEvents().stream()
+                .map(Event::getId)
+                .collect(Collectors.toSet());
+        Map<Long, Long> confirmedRequestsCounts = requestRepository.countConfirmedRequestsForEvents(savedEventIds);
+
+        return CompilationMapper.toCompilationDto(saved, confirmedRequestsCounts);
     }
 
     @Override
@@ -73,7 +83,13 @@ public class CompilationServiceImpl implements CompilationService {
         }
 
         Compilation updatedCompilation = compilationRepository.save(compilation);
-        return CompilationMapper.toCompilationDto(updatedCompilation);
+
+        Set<Long> updatedEventIds = updatedCompilation.getEvents().stream()
+                .map(Event::getId)
+                .collect(Collectors.toSet());
+        Map<Long, Long> confirmedRequestsCounts = requestRepository.countConfirmedRequestsForEvents(updatedEventIds);
+
+        return CompilationMapper.toCompilationDto(updatedCompilation, confirmedRequestsCounts);
     }
 
     @Override
@@ -85,8 +101,16 @@ public class CompilationServiceImpl implements CompilationService {
         } else {
             compilations = compilationRepository.findAll(page).getContent();
         }
+
+        Set<Long> allEventIds = compilations.stream()
+                .flatMap(compilation -> compilation.getEvents().stream())
+                .map(Event::getId)
+                .collect(Collectors.toSet());
+
+        Map<Long, Long> allConfirmedRequestsCounts = requestRepository.countConfirmedRequestsForEvents(allEventIds);
+
         return compilations.stream()
-                .map(CompilationMapper::toCompilationDto)
+                .map(compilation -> CompilationMapper.toCompilationDto(compilation, allConfirmedRequestsCounts))
                 .collect(Collectors.toList());
     }
 
@@ -94,6 +118,12 @@ public class CompilationServiceImpl implements CompilationService {
     public CompilationDto getCompilationById(Long compId) {
         Compilation compilation = compilationRepository.findById(compId)
                 .orElseThrow(() -> new NotFoundException("Подборка с ID=" + compId + " не найдена."));
-        return CompilationMapper.toCompilationDto(compilation);
+
+        Set<Long> eventIds = compilation.getEvents().stream()
+                .map(Event::getId)
+                .collect(Collectors.toSet());
+        Map<Long, Long> confirmedRequestsCounts = requestRepository.countConfirmedRequestsForEvents(eventIds);
+
+        return CompilationMapper.toCompilationDto(compilation, confirmedRequestsCounts);
     }
 }

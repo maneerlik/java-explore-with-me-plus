@@ -12,6 +12,8 @@ import ru.practicum.model.User;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public final class EventMapper {
@@ -41,7 +43,7 @@ public final class EventMapper {
                 .build();
     }
 
-    public static EventShortDto toEventShortDto(Event event) {
+    public static EventShortDto toEventShortDto(Event event, Long confirmedRequestsCount) {
         if (event == null) {
             return null;
         }
@@ -53,8 +55,28 @@ public final class EventMapper {
                 UserMapper.toShortDto(event.getInitiator()),
                 event.getPaid(),
                 event.getTitle(),
-                event.getViews()
+                event.getViews(),
+                confirmedRequestsCount,
+                event.getParticipantLimit()
         );
+    }
+
+    public static Set<EventShortDto> toEventShortDtoSet(Set<Event> events, Map<Long, Long> confirmedRequestsCounts) {
+        if (events == null || events.isEmpty()) {
+            return Collections.emptySet();
+        }
+        return events.stream()
+                .map(event -> toEventShortDto(event, confirmedRequestsCounts.getOrDefault(event.getId(), 0L)))
+                .collect(Collectors.toSet());
+    }
+
+    public static List<EventShortDto> toEventShortDtoList(List<Event> events, Map<Long, Long> confirmedRequestsCounts) {
+        if (events == null || events.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return events.stream()
+                .map(event -> toEventShortDto(event, confirmedRequestsCounts.getOrDefault(event.getId(), 0L)))
+                .collect(Collectors.toList());
     }
 
     public static EventFullDto toFullEventDto(Event event, long confirmedRequestsCount) {
@@ -94,7 +116,7 @@ public final class EventMapper {
             return Collections.emptyList();
         }
         return events.stream()
-                .map(EventMapper::toEventShortDto)
+                .map(event -> toEventShortDto(event, 0L))
                 .collect(Collectors.toList());
     }
 

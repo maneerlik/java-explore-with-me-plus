@@ -32,6 +32,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -75,7 +77,14 @@ public class EventServiceImpl implements EventService {
         }
         Pageable page = PageRequest.of(from / size, size);
         List<Event> events = eventRepository.findAllByInitiatorId(userId, page);
-        return events.stream().map(EventMapper::toEventShortDto).collect(Collectors.toList());
+
+        Set<Long> eventIds = events.stream()
+                .map(Event::getId)
+                .collect(Collectors.toSet());
+
+        Map<Long, Long> confirmedRequestsCounts = requestRepository.countConfirmedRequestsForEvents(eventIds);
+
+        return EventMapper.toEventShortDtoList(events, confirmedRequestsCounts);
     }
 
     @Override
@@ -242,12 +251,6 @@ public class EventServiceImpl implements EventService {
             predicates.add(cb.lessThan(eventRoot.get("eventDate"), rangeEnd));
         }
 
-        if (onlyAvailable != null && onlyAvailable) {
-            Predicate limitZero = cb.equal(eventRoot.get("participantLimit"), 0);
-            Predicate limitNotReached = cb.lessThan(eventRoot.get("confirmedRequests"), eventRoot.get("participantLimit"));
-            predicates.add(cb.or(limitZero, limitNotReached));
-        }
-
         predicates.add(cb.equal(eventRoot.get("state"), EventState.PUBLISHED));
 
         query.where(cb.and(predicates.toArray(new Predicate[0])));
@@ -265,9 +268,21 @@ public class EventServiceImpl implements EventService {
 
         sendHitAsync(request.getRequestURI(), request.getRemoteAddr());
 
-        return events.stream()
-                .map(EventMapper::toEventShortDto)
-                .collect(Collectors.toList());
+        Set<Long> eventIds = events.stream()
+                .map(Event::getId)
+                .collect(Collectors.toSet());
+
+        Map<Long, Long> confirmedRequestsCounts = requestRepository.countConfirmedRequestsForEvents(eventIds);
+
+        List<EventShortDto> shortDtos = EventMapper.toEventShortDtoList(events, confirmedRequestsCounts);
+
+        if (onlyAvailable != null && onlyAvailable) {
+            return shortDtos.stream()
+                    .filter(dto -> dto.getParticipantLimit() == 0 || dto.getConfirmedRequests() < dto.getParticipantLimit())
+                    .collect(Collectors.toList());
+        }
+
+        return shortDtos;
     }
 
     @Override
@@ -377,13 +392,6 @@ public class EventServiceImpl implements EventService {
             predicates.add(cb.lessThan(eventRoot.get("eventDate"), rangeEnd));
         }
 
-        if (onlyAvailable != null && onlyAvailable) {
-            predicates.add(cb.or(
-                    cb.equal(eventRoot.get("participantLimit"), 0),
-                    cb.lessThan(eventRoot.get("confirmedRequests"), eventRoot.get("participantLimit"))
-            ));
-        }
-
         predicates.add(cb.equal(eventRoot.get("state"), EventState.PUBLISHED));
 
         query.where(predicates.toArray(new Predicate[0]));
@@ -401,9 +409,23 @@ public class EventServiceImpl implements EventService {
 
         sendHitAsync(request.getRequestURI(), request.getRemoteAddr());
 
-        return events.stream()
-                .map(EventMapper::toEventShortDto)
-                .collect(Collectors.toList());
+        Set<Long> eventIds = events.stream()
+                .map(Event::getId)
+                .collect(Collectors.toSet());
+
+        Map<Long, Long> confirmedRequestsCounts = requestRepository.countConfirmedRequestsForEvents(eventIds);
+
+        List<EventShortDto> shortDtos = EventMapper.toEventShortDtoList(events, confirmedRequestsCounts);
+
+        if (onlyAvailable != null && onlyAvailable) {
+            return shortDtos.stream()
+                    .filter(dto -> {
+                        return dto.getParticipantLimit() == 0 || dto.getConfirmedRequests() < dto.getParticipantLimit();
+                    })
+                    .collect(Collectors.toList());
+        }
+
+        return shortDtos;
     }
 
     private void validateEventDate(LocalDateTime eventDate, int hours) {

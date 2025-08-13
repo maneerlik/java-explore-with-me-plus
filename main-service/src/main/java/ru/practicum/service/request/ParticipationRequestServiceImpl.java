@@ -130,6 +130,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
 
         requestRepository.saveAll(confirmedRequests);
         requestRepository.saveAll(rejectedRequests);
+        requestRepository.flush();
 
         return new EventRequestStatusUpdateResult(
                 toDtoList(confirmedRequests),

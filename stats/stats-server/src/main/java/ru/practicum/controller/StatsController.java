@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.HitDto;
@@ -32,9 +33,10 @@ public class StatsController {
      * @return HitDto объект созданного запроса
      */
     @PostMapping("/hit")
-    public HitDto createHit(@RequestBody @Valid HitDto hitDto) {
+    public ResponseEntity<HitDto> createHit(@RequestBody @Valid HitDto hitDto) {
         log.info("Creating hit {} in the service", hitDto);
-        return statsService.create(hitDto);
+        HitDto createdHit = statsService.create(hitDto);
+        return new ResponseEntity<>(createdHit, HttpStatus.CREATED);
     }
 
     /**

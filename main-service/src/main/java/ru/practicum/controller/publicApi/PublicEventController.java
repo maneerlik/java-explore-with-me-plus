@@ -15,10 +15,10 @@ import ru.practicum.service.event.EventService;
 import java.util.List;
 
 @RestController
-@Validated
-@RequestMapping("/events")
-@RequiredArgsConstructor
 @Slf4j
+@Validated
+@RequiredArgsConstructor
+@RequestMapping(path = "/events")
 public class PublicEventController {
     private final EventService eventService;
 

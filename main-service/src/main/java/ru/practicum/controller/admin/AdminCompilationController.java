@@ -12,27 +12,21 @@ import ru.practicum.dto.compilation.UpdateCompilationRequest;
 import ru.practicum.service.compilation.CompilationService;
 
 @RestController
-@RequiredArgsConstructor
 @Slf4j
+@RequiredArgsConstructor
+@RequestMapping(path = "/admin/compilations")
 public class AdminCompilationController {
     private final CompilationService compilationService;
 
 
-    @PostMapping("/admin/compilations")
+    @PostMapping
     public ResponseEntity<CompilationDto> createCompilation(@Valid @RequestBody NewCompilationDto newDto) {
         log.info("ADMIN: creating compilation", newDto);
         CompilationDto created = compilationService.createCompilation(newDto);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
-    @DeleteMapping("/admin/compilations/{compId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteCompilation(@PathVariable Long compId) {
-        log.info("ADMIN: deleting compilation", compId);
-        compilationService.deleteCompilation(compId);
-    }
-
-    @PatchMapping("/admin/compilations/{compId}")
+    @PatchMapping("/{compId}")
     public ResponseEntity<CompilationDto> updateCompilation(
             @PathVariable Long compId,
             @Valid @RequestBody UpdateCompilationRequest updateRequest
@@ -40,5 +34,12 @@ public class AdminCompilationController {
         log.info("ADMIN: update compilation", compId, updateRequest);
         CompilationDto updated = compilationService.updateCompilation(compId, updateRequest);
         return ResponseEntity.ok(updated);
+    }
+
+    @DeleteMapping("/{compId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteCompilation(@PathVariable Long compId) {
+        log.info("ADMIN: deleting compilation", compId);
+        compilationService.deleteCompilation(compId);
     }
 }

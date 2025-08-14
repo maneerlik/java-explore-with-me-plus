@@ -1,7 +1,6 @@
 package ru.practicum;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -27,15 +26,16 @@ public class StatsController {
     }
 
     @GetMapping("/stats")
-    public ResponseEntity<Object> getStats(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @NotNull LocalDateTime start,
-                                           @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @NotNull LocalDateTime end,
-                                           @RequestParam(required = false) List<String> uris,
-                                           @RequestParam(defaultValue = "false") Boolean unique) {
-        if (start.isAfter(end)) {
-            throw new IllegalStateException("Client error: Invalid date range");
-        }
+    public ResponseEntity<List<ViewStatsDto>> getStats(
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
+            @RequestParam(required = false) List<String> uris,
+            @RequestParam(defaultValue = "false") Boolean unique) {
 
-        return statsClient.getStats(start, end, uris, unique);
+        log.info("Получен запрос на статистику: start={}, end={}, uris={}, unique={}", start, end, uris, unique);
+
+        List<ViewStatsDto> stats = statsClient.getStats(start, end, uris, unique);
+
+        return ResponseEntity.ok(stats);
     }
-
 }

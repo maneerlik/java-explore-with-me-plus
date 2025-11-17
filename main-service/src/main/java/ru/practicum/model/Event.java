@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import ru.practicum.enums.EventState;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -72,4 +74,7 @@ public class Event {
 
     @Column(name = "confirmed_requests")
     private Long confirmedRequests;
+
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Comment> comments = new HashSet<>();
 }
